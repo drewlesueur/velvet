@@ -2,6 +2,7 @@ define ?= (args..., name, ret) -> module?.exports = ret()
 define "velvet", () ->
   velvet = {}
   velvet.lex = (code) ->
+    use_indent = false
     value = ""
     funcStack = []
     func = []
@@ -21,9 +22,17 @@ define "velvet", () ->
         func.push value
         value = ""
 
+      if func.length is 1 and func[0] is "use_indent"
+        use_indent = true
+        console.log """i
+          yay, use indent is true
+          !!!!!!!!!!!!!!!!!!!!!! 
+        """
+
     closeQuote = ->
       func.push ["string", value]
       value = ""
+      state = "func"
 
     startParens = () ->
       funcStack.push func
@@ -61,6 +70,7 @@ define "velvet", () ->
           addChr()
         else if isQuoteChr()
           closeQuote()
+
 
 
 

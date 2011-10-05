@@ -11,7 +11,8 @@
     var velvet;
     velvet = {};
     velvet.lex = function(code) {
-      var addChr, chr, closeParens, closeQuote, closeValue, func, funcStack, isControlChr, isQuoteChr, isSpaceChr, startParens, state, value, _i, _len;
+      var addChr, chr, closeParens, closeQuote, closeValue, func, funcStack, isControlChr, isQuoteChr, isSpaceChr, startParens, state, use_indent, value, _i, _len;
+      use_indent = false;
       value = "";
       funcStack = [];
       func = [];
@@ -30,12 +31,17 @@
       closeValue = function() {
         if (value.length > 0) {
           func.push(value);
-          return value = "";
+          value = "";
+        }
+        if (func.length === 1 && func[0] === "use_indent") {
+          use_indent = true;
+          return console.log("i\nyay, use indent is true\n!!!!!!!!!!!!!!!!!!!!!! ");
         }
       };
       closeQuote = function() {
         func.push(["string", value]);
-        return value = "";
+        value = "";
+        return state = "func";
       };
       startParens = function() {
         funcStack.push(func);

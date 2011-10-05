@@ -26,5 +26,22 @@
     shouldBe = [["say", ["string", "hi"]], ["how", ["are", ["string", "you doing?"]]]];
     return equalish(shouldBe, symbols);
   });
+  test("simple with multiline", function() {
+    var code, shouldBe, symbols;
+    code = "(say \"hi\")\n(how (are\n\n    \"you doing?\"))";
+    symbols = lex(code);
+    shouldBe = [["say", ["string", "hi"]], ["how", ["are", ["string", "you doing?"]]]];
+    return equalish(shouldBe, symbols);
+  });
+  test("should use optional indent syntax", function() {
+    var code, shouldBe, symbols;
+    return ok(true);
+    code = "use_indent\nsay \"hi\"\nhow (are \"you doing\")\n  very well (thank you)";
+    symbols = lex(code);
+    return shouldBe = [["say", ["string", "hi"]], ["how", ["are", ["string", "you doing?"]], "very", "well", ["thank", "you"]]];
+  });
+  test("should parse with special string syntax", function() {
+    return ok(true);
+  });
   fin();
 }).call(this);

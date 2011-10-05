@@ -34,5 +34,35 @@ test "should parse with strings", ->
   ]
   equalish shouldBe, symbols
 
+test "simple with multiline", ->
+  code = """
+    (say "hi")
+    (how (are
+    
+        "you doing?"))
+  """
+  symbols = lex code
+  shouldBe = [
+    ["say", ["string", "hi"]]
+    ["how", ["are", ["string", "you doing?"]]]
+  ]
+  equalish shouldBe, symbols
+
+test "should use optional indent syntax", ->
+  return ok true
+  code = """
+   use_indent
+   say "hi"
+   how (are "you doing")
+     very well (thank you)
+  """
+  symbols = lex code
+  shouldBe = [
+    ["say", ["string", "hi"]]
+    ["how", ["are", ["string", "you doing?"]], "very", "well", ["thank", "you"]]
+  ]
+
+test "should parse with special string syntax", ->
+  ok true
 
 fin()

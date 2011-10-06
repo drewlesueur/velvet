@@ -95,10 +95,8 @@
           } else if (chr === "\n") {
             newLineIndentWidth = 0;
           } else if (chr !== " ") {
-            console.log("yay got here!!\nindentWidth = " + indentWidth + "\nnewLineIndentWidth = " + newLineIndentWidth);
             if (newLineIndentWidth <= indentWidth) {
               closeCount = indentWidth - newLineIndentWidth + 1;
-              console.log("\ncloseCount is " + closeCount + "\nindentWidth is " + indentWidth + "\nnewLineIndentWidth is " + newLineIndentWidth + "\nchr is " + chr + "\n*****$$$$$*****\n");
               for (i = 0; 0 <= closeCount ? i < closeCount : i > closeCount; 0 <= closeCount ? i++ : i--) {
                 closeParens();
               }

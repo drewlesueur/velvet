@@ -19,14 +19,25 @@ test "creating the object for you like php"
   assert my_obj2 "keys" "similar" (array "albums")
   assert my_obj2 "albums" 1 "is" "El Dorado"
 
-
   
-      
+test "lexical scope"      
 
 
 test "functions"
-  setfn play_music 
+  def play_music
 
 
-""" destructuring
+"""
+  destructuring
+
+
+test "simple multi line strings"
+  set my_string """
+    this is a multi line string
+    just use intention to figure out
+    where it ends
+
+  assert my_string is "this is a multi line string\n
+just use indention to figure out\nwhere it ends"
+
 

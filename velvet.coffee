@@ -77,23 +77,9 @@ define "velvet", () ->
         else if chr is "\n"
           newLineIndentWidth = 0
         else if chr isnt " "
-          console.log """
-            yay got here!!
-            indentWidth = #{indentWidth}
-            newLineIndentWidth = #{newLineIndentWidth}
-          """
           # close as many parens as you need to
           if newLineIndentWidth <= indentWidth
             closeCount = indentWidth - newLineIndentWidth + 1
-            console.log """
-
-              closeCount is #{closeCount}
-              indentWidth is #{indentWidth}
-              newLineIndentWidth is #{newLineIndentWidth}
-              chr is #{chr}
-              *****$$$$$*****
-
-            """
             for i in [0...closeCount]
               closeParens()
           else
@@ -114,7 +100,6 @@ define "velvet", () ->
     closeValue()
     while funcStack.length > 0
       closeParens() #close implicit parens
-      
 
     func
   velvet

@@ -1,18 +1,21 @@
 (function() {
+  var define, _;
   var __slice = Array.prototype.slice;
-  if (typeof define === "undefined" || define === null) {
-    define = function() {
-      var args, name, ret, _i;
-      args = 3 <= arguments.length ? __slice.call(arguments, 0, _i = arguments.length - 2) : (_i = 0, []), name = arguments[_i++], ret = arguments[_i++];
-      return typeof module !== "undefined" && module !== null ? module.exports = ret() : void 0;
-    };
-  }
+  _ = require("underscore");
+  define = function() {
+    var args, name, ret, _i;
+    args = 3 <= arguments.length ? __slice.call(arguments, 0, _i = arguments.length - 2) : (_i = 0, []), name = arguments[_i++], ret = arguments[_i++];
+    return typeof module !== "undefined" && module !== null ? module.exports = ret() : void 0;
+  };
   define("velvet", function() {
     var velvet;
     velvet = {};
+    velvet.version = "0.0.1";
     velvet.lex = function(code) {
-      var addChr, chr, closeParens, closeQuote, closeValue, func, funcStack, isControlChr, isQuoteChr, isSpaceChr, startParens, state, use_indent, value, _i, _len;
-      use_indent = false;
+      var addChr, chr, closeCount, closeParens, closeQuote, closeValue, func, funcStack, i, inFunc, indentCount, indentWidth, isControlChr, isQuoteChr, isSpaceChr, literalParens, newLineIndentWidth, startParens, state, value, _i, _len;
+      literalParens = 0;
+      newLineIndentWidth = 0;
+      indentWidth = 0;
       value = "";
       funcStack = [];
       func = [];
@@ -22,7 +25,7 @@
         return value += chr;
       };
       isControlChr = function() {
-        if (chr.match(/[\(\)"\s]/g)) {
+        if (chr.match(/[\(\)"\s\n]/g)) {
           return true;
         } else {
           return false;
@@ -31,11 +34,7 @@
       closeValue = function() {
         if (value.length > 0) {
           func.push(value);
-          value = "";
-        }
-        if (func.length === 1 && func[0] === "use_indent") {
-          use_indent = true;
-          return console.log("i\nyay, use indent is true\n!!!!!!!!!!!!!!!!!!!!!! ");
+          return value = "";
         }
       };
       closeQuote = function() {
@@ -53,7 +52,9 @@
         closeValue();
         oldFunc = func;
         func = funcStack.pop();
-        return func.push(oldFunc);
+        if (_.isArray(func)) {
+          return func.push(oldFunc);
+        }
       };
       isSpaceChr = function() {
         if (chr.match(/\s/)) {
@@ -65,20 +66,51 @@
           return true;
         }
       };
+      inFunc = function() {
+        if (!isControlChr()) {
+          return addChr();
+        } else if (chr === "\n") {
+          if (literalParens === 0) {
+            state = "newline";
+            return newLineIndentWidth = 0;
+          }
+        } else if (chr === "(") {
+          literalParens += 1;
+          return startParens();
+        } else if (chr === ")") {
+          literalParens -= 1;
+          return closeParens();
+        } else if (isSpaceChr()) {
+          return closeValue();
+        } else if (isQuoteChr()) {
+          return state = "quote";
+        }
+      };
+      startParens();
       for (_i = 0, _len = code.length; _i < _len; _i++) {
         chr = code[_i];
-        if (state === "func") {
-          if (!isControlChr()) {
-            addChr();
-          } else if (chr === "(") {
-            startParens();
-          } else if (chr === ")") {
-            closeParens();
-          } else if (isSpaceChr()) {
-            closeValue();
-          } else if (isQuoteChr()) {
-            state = "quote";
+        if (state === "newline") {
+          if (chr === " ") {
+            newLineIndentWidth += 0.5;
+          } else if (chr === "\n") {
+            newLineIndentWidth = 0;
           }
+          if (chr !== " ") {
+            console.log("yay got here!!\nindentWidth = " + indentWidth + "\nnewLineIndentWidth = " + newLineIndentWidth);
+            indentCount = newLineIndentWidth;
+            if (newLineIndentWidth <= indentWidth) {
+              closeCount = indentWidth - newLineIndentWidth + 1;
+              console.log("\ncloseCount is " + closeCount + "\n");
+              for (i = 0; 0 <= closeCount ? i < closeCount : i > closeCount; 0 <= closeCount ? i++ : i--) {
+                closeParens();
+              }
+            }
+            state = "func";
+            startParens();
+            inFunc();
+          }
+        } else if (state === "func") {
+          inFunc();
         } else if (state === "quote") {
           if (!isQuoteChr()) {
             addChr();
@@ -87,6 +119,8 @@
           }
         }
       }
+      closeValue();
+      closeParens();
       return func;
     };
     return velvet;

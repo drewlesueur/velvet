@@ -1,6 +1,6 @@
 test "setting a variable"
   set band "aterciopelados"
-  assert band "is" "aterciopelados"
+  assert band is "aterciopelados"
   
 test "using arrays"
   set my_array (array "zer0" 1 2 "three" "four" 5)

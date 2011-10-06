@@ -50,13 +50,11 @@ test "simple with multiline", ->
   ]
   equalish shouldBe, symbols
 
-return fin()
-# left off here
 
 test "indent test", ->
   code = """
    say "hi"
-   how (are "you doing")
+   how (are "you doing?")
      very well (thank you)
   """
   symbols = lex code
@@ -68,7 +66,30 @@ test "indent test", ->
     ]
   ]
   equalish shouldBe, symbols
+
+
+test "indent test 2", ->
+  code = """
+   say "hi"
+   how (are "you doing?")
+     very well (thank you)
+   and back out
+  """
+  symbols = lex code
+  shouldBe = [
+    ["say", ["string", "hi"]]
+    ["how", 
+      ["are", ["string", "you doing?"]],
+      ["very", "well", ["thank", "you"]]
+    ]
+    ["and", "back", "out"]
+
+  ]
+  equalish shouldBe, symbols
         
+return fin()
+# left off here
+
 test "should parse with special string syntax", ->
   code = """
     set mystr ""\"

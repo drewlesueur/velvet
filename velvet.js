@@ -12,7 +12,7 @@
     velvet = {};
     velvet.version = "0.0.1";
     velvet.lex = function(code) {
-      var addChr, chr, closeCount, closeParens, closeQuote, closeValue, func, funcStack, i, inFunc, indentCount, indentWidth, isControlChr, isQuoteChr, isSpaceChr, literalParens, newLineIndentWidth, startParens, state, value, _i, _len;
+      var addChr, chr, closeCount, closeParens, closeQuote, closeValue, func, funcStack, i, inFunc, indentWidth, isControlChr, isQuoteChr, isSpaceChr, literalParens, newLineIndentWidth, startParens, state, value, _i, _len;
       literalParens = 0;
       newLineIndentWidth = 0;
       indentWidth = 0;
@@ -94,17 +94,18 @@
             newLineIndentWidth += 0.5;
           } else if (chr === "\n") {
             newLineIndentWidth = 0;
-          }
-          if (chr !== " ") {
+          } else if (chr !== " ") {
             console.log("yay got here!!\nindentWidth = " + indentWidth + "\nnewLineIndentWidth = " + newLineIndentWidth);
-            indentCount = newLineIndentWidth;
             if (newLineIndentWidth <= indentWidth) {
               closeCount = indentWidth - newLineIndentWidth + 1;
-              console.log("\ncloseCount is " + closeCount + "\n");
+              console.log("\ncloseCount is " + closeCount + "\nindentWidth is " + indentWidth + "\nnewLineIndentWidth is " + newLineIndentWidth + "\nchr is " + chr + "\n*****$$$$$*****\n");
               for (i = 0; 0 <= closeCount ? i < closeCount : i > closeCount; 0 <= closeCount ? i++ : i--) {
                 closeParens();
               }
+            } else {
+              1;
             }
+            indentWidth = newLineIndentWidth;
             state = "func";
             startParens();
             inFunc();
@@ -120,7 +121,9 @@
         }
       }
       closeValue();
-      closeParens();
+      while (funcStack.length > 0) {
+        closeParens();
+      }
       return func;
     };
     return velvet;

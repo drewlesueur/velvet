@@ -33,14 +33,21 @@
     shouldBe = [["say", ["string", "hi"]], ["how", ["are", ["string", "you doing?"]]]];
     return equalish(shouldBe, symbols);
   });
-  return fin();
   test("indent test", function() {
     var code, shouldBe, symbols;
-    code = "say \"hi\"\nhow (are \"you doing\")\n  very well (thank you)";
+    code = "say \"hi\"\nhow (are \"you doing?\")\n  very well (thank you)";
     symbols = lex(code);
     shouldBe = [["say", ["string", "hi"]], ["how", ["are", ["string", "you doing?"]], ["very", "well", ["thank", "you"]]]];
     return equalish(shouldBe, symbols);
   });
+  test("indent test 2", function() {
+    var code, shouldBe, symbols;
+    code = "say \"hi\"\nhow (are \"you doing?\")\n  very well (thank you)\nand back out";
+    symbols = lex(code);
+    shouldBe = [["say", ["string", "hi"]], ["how", ["are", ["string", "you doing?"]], ["very", "well", ["thank", "you"]]], ["and", "back", "out"]];
+    return equalish(shouldBe, symbols);
+  });
+  return fin();
   test("should parse with special string syntax", function() {
     var code, shouldBe, str, symbols;
     code = "set mystr \"\"\"\n  this is a multi line string\n  it can have anything \n";

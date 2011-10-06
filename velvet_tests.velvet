@@ -1,0 +1,32 @@
+test "setting a variable"
+  set band "aterciopelados"
+  assert band "is" "aterciopelados"
+  
+test "using arrays"
+  set my_array (array "zer0" 1 2 "three" "four" 5)
+  assert my_array 0 "is" "zer0"
+  assert my_array 1 "is" 1
+  assert my_array -1 "is" 5
+
+test "using objects"
+  set my_ojb (object name "aterciopelados" members (array "a" "h"))
+  assert my_obj "name" "is" "aterciopelados" 
+  assert my_obj "members" 0 "is" "a"
+  
+
+test "creating the object for you like php"
+  set my_obj2 "albums" 1 "El Dorado"
+  assert my_obj2 "keys" "similar" (array "albums")
+  assert my_obj2 "albums" 1 "is" "El Dorado"
+
+
+  
+      
+
+
+test "functions"
+  setfn play_music 
+
+
+""" destructuring
+

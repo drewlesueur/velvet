@@ -15,6 +15,7 @@ define "velvet", () ->
 
     code = code.split ""
     addChr = -> value += chr
+    removeLastChr = -> value = value.substring(0, value.length - 2)
     isControlChr = -> 
       if chr.match(/[\(\)"\s\n]/g)
         true
@@ -51,6 +52,31 @@ define "velvet", () ->
       if chr.match /"/
         true
 
+    threeQuotes = ->
+      #called when there is already one quote
+      chr is '"' and code[index + 1] is '"' and code[index + 2] is '\n'
+
+    closeParensBasedOnIndent = ->
+      closeCount = indentWidth - newLineIndentWidth + 1
+      for i in [0...closeCount]
+        closeParens()
+
+    inNewLine = ->
+      if chr is " "
+        newLineIndentWidth += 0.5
+      else if chr is "\n"
+        newLineIndentWidth = 0
+      else if chr isnt " "
+        # close as many parens as you need to
+        if newLineIndentWidth <= indentWidth
+          closeParensBasedOnIndent()
+        else
+          1
+        indentWidth = newLineIndentWidth
+        state = "func"
+        startParens()
+        inFunc()
+
     inFunc = () ->
       if not isControlChr() 
         addChr()
@@ -69,33 +95,43 @@ define "velvet", () ->
       else if isQuoteChr()
         state = "quote"
 
-    startParens() #start implicit parens
-    for chr in code
-      if state is "newline"
-        if chr is " "
-          newLineIndentWidth += 0.5
-        else if chr is "\n"
-          newLineIndentWidth = 0
-        else if chr isnt " "
-          # close as many parens as you need to
-          if newLineIndentWidth <= indentWidth
-            closeCount = indentWidth - newLineIndentWidth + 1
-            for i in [0...closeCount]
-              closeParens()
-          else
-            1
+    inQuote = ->
+      if threeQuotes() #keep in mind already in state quote
+        index += 2 #skip over the last quote and carriage return
+        state = "triple_quote"
+      else if not isQuoteChr() 
+        addChr()
+      else if isQuoteChr()
+        closeQuote()
+    
+    inTripleQuote = ->
+      if chr is "\n"
+        newLineIndentWidth = 0
 
-          indentWidth = newLineIndentWidth
-          state = "func"
-          startParens()
-          inFunc()
+      if chr is " " and newLineIndentWidth - indentWidth < 1
+        newLineIndentWidth += 0.5
+
+      else if (chr isnt "\n") and (chr isnt " ") and (newLineIndentWidth <= indentWidth)
+        value = value.substring 0, value.length - 1
+        closeQuote()
+        closeParensBasedOnIndent()
+        startParens()
+        inFunc()
+      else if chr is " " and (newLineIndentWidth <= indentWidth)
+        1
+      else
+        addChr()
+
+    startParens() #start implicit parens
+    for chr, index in code
+      if state is "newline"
+        inNewLine()
       else if state is "func"
         inFunc()
       else if state is "quote"
-        if not isQuoteChr() 
-          addChr()
-        else if isQuoteChr()
-          closeQuote()
+        inQuote()
+      else if state is "triple_quote"
+        inTripleQuote()
 
     closeValue()
     while funcStack.length > 0

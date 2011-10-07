@@ -87,22 +87,26 @@ test "indent test 2", ->
   ]
   equalish shouldBe, symbols
         
-return fin()
-# left off here
 
 test "should parse with special string syntax", ->
   code = """
     set mystr ""\"
       this is a multi line string
-      it can have anything 
+        it can have anything
+      yea
+    something else
     
   """
   str = """
     this is a multi line string
-    it can have anything 
+      it can have anything
+    yea
   """
   symbols = lex code
-  shouldBe = ["set", "mystr", str]
+  shouldBe = [
+    ["set", "mystr", ["string", str]]
+    ["something", "else"]
+  ]
   equalish shouldBe, symbols
 
 

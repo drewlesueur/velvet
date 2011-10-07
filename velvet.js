@@ -12,7 +12,7 @@
     velvet = {};
     velvet.version = "0.0.1";
     velvet.lex = function(code) {
-      var addChr, chr, closeCount, closeParens, closeQuote, closeValue, func, funcStack, i, inFunc, indentWidth, isControlChr, isQuoteChr, isSpaceChr, literalParens, newLineIndentWidth, startParens, state, value, _i, _len;
+      var addChr, chr, closeParens, closeParensBasedOnIndent, closeQuote, closeValue, func, funcStack, inFunc, inNewLine, inQuote, inTripleQuote, indentWidth, index, isControlChr, isQuoteChr, isSpaceChr, literalParens, newLineIndentWidth, removeLastChr, startParens, state, threeQuotes, value, _len;
       literalParens = 0;
       newLineIndentWidth = 0;
       indentWidth = 0;
@@ -23,6 +23,9 @@
       code = code.split("");
       addChr = function() {
         return value += chr;
+      };
+      removeLastChr = function() {
+        return value = value.substring(0, value.length - 2);
       };
       isControlChr = function() {
         if (chr.match(/[\(\)"\s\n]/g)) {
@@ -66,6 +69,35 @@
           return true;
         }
       };
+      threeQuotes = function() {
+        return chr === '"' && code[index + 1] === '"' && code[index + 2] === '\n';
+      };
+      closeParensBasedOnIndent = function() {
+        var closeCount, i, _results;
+        closeCount = indentWidth - newLineIndentWidth + 1;
+        _results = [];
+        for (i = 0; 0 <= closeCount ? i < closeCount : i > closeCount; 0 <= closeCount ? i++ : i--) {
+          _results.push(closeParens());
+        }
+        return _results;
+      };
+      inNewLine = function() {
+        if (chr === " ") {
+          return newLineIndentWidth += 0.5;
+        } else if (chr === "\n") {
+          return newLineIndentWidth = 0;
+        } else if (chr !== " ") {
+          if (newLineIndentWidth <= indentWidth) {
+            closeParensBasedOnIndent();
+          } else {
+            1;
+          }
+          indentWidth = newLineIndentWidth;
+          state = "func";
+          startParens();
+          return inFunc();
+        }
+      };
       inFunc = function() {
         if (!isControlChr()) {
           return addChr();
@@ -86,36 +118,45 @@
           return state = "quote";
         }
       };
+      inQuote = function() {
+        if (threeQuotes()) {
+          index += 2;
+          return state = "triple_quote";
+        } else if (!isQuoteChr()) {
+          return addChr();
+        } else if (isQuoteChr()) {
+          return closeQuote();
+        }
+      };
+      inTripleQuote = function() {
+        if (chr === "\n") {
+          newLineIndentWidth = 0;
+        }
+        if (chr === " " && newLineIndentWidth - indentWidth < 1) {
+          return newLineIndentWidth += 0.5;
+        } else if ((chr !== "\n") && (chr !== " ") && (newLineIndentWidth <= indentWidth)) {
+          value = value.substring(0, value.length - 1);
+          closeQuote();
+          closeParensBasedOnIndent();
+          startParens();
+          return inFunc();
+        } else if (chr === " " && (newLineIndentWidth <= indentWidth)) {
+          return 1;
+        } else {
+          return addChr();
+        }
+      };
       startParens();
-      for (_i = 0, _len = code.length; _i < _len; _i++) {
-        chr = code[_i];
+      for (index = 0, _len = code.length; index < _len; index++) {
+        chr = code[index];
         if (state === "newline") {
-          if (chr === " ") {
-            newLineIndentWidth += 0.5;
-          } else if (chr === "\n") {
-            newLineIndentWidth = 0;
-          } else if (chr !== " ") {
-            if (newLineIndentWidth <= indentWidth) {
-              closeCount = indentWidth - newLineIndentWidth + 1;
-              for (i = 0; 0 <= closeCount ? i < closeCount : i > closeCount; 0 <= closeCount ? i++ : i--) {
-                closeParens();
-              }
-            } else {
-              1;
-            }
-            indentWidth = newLineIndentWidth;
-            state = "func";
-            startParens();
-            inFunc();
-          }
+          inNewLine();
         } else if (state === "func") {
           inFunc();
         } else if (state === "quote") {
-          if (!isQuoteChr()) {
-            addChr();
-          } else if (isQuoteChr()) {
-            closeQuote();
-          }
+          inQuote();
+        } else if (state === "triple_quote") {
+          inTripleQuote();
         }
       }
       closeValue();

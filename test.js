@@ -47,13 +47,12 @@
     shouldBe = [["say", ["string", "hi"]], ["how", ["are", ["string", "you doing?"]], ["very", "well", ["thank", "you"]]], ["and", "back", "out"]];
     return equalish(shouldBe, symbols);
   });
-  return fin();
   test("should parse with special string syntax", function() {
     var code, shouldBe, str, symbols;
-    code = "set mystr \"\"\"\n  this is a multi line string\n  it can have anything \n";
-    str = "this is a multi line string\nit can have anything ";
+    code = "set mystr \"\"\"\n  this is a multi line string\n    it can have anything\n  yea\nsomething else\n";
+    str = "this is a multi line string\n  it can have anything\nyea";
     symbols = lex(code);
-    shouldBe = ["set", "mystr", str];
+    shouldBe = [["set", "mystr", ["string", str]], ["something", "else"]];
     return equalish(shouldBe, symbols);
   });
   fin();

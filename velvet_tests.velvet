@@ -37,6 +37,23 @@ test "simple multi line strings"
     just use intention to figure out
     where it ends
 
+  set my_string """
+    this is a long string
+    you have to be able to see it
+    you can interpolate #{as well}
+
+
+  macro """
+    (set #{you})
+
+  quote = """
+    this is a " quote
+
+    
+    
+    
+    
+
   assert my_string is "this is a multi line string\n
 just use indention to figure out\nwhere it ends"
 

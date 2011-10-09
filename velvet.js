@@ -11,8 +11,8 @@
     var velvet;
     velvet = {};
     velvet.version = "0.0.1";
-    velvet.lex = function(code) {
-      var addChr, chr, closeParens, closeParensBasedOnIndent, closeQuote, closeValue, func, funcStack, inFunc, inNewLine, inQuote, inTripleQuote, indentWidth, index, isControlChr, isQuoteChr, isSpaceChr, literalParens, newLineIndentWidth, removeLastChr, startParens, state, threeQuotes, value, _len;
+    velvet.parse = function(code) {
+      var addChr, chr, closeParens, closeParensBasedOnIndent, closeQuote, closeValue, func, funcStack, inFunc, inNewLine, inQuote, inTripleQuote, indentWidth, index, isControlChr, isQuoteChr, isSpaceChr, literalParens, newLineIndentWidth, startParens, state, threeQuotes, value, _len;
       literalParens = 0;
       newLineIndentWidth = 0;
       indentWidth = 0;
@@ -23,9 +23,6 @@
       code = code.split("");
       addChr = function() {
         return value += chr;
-      };
-      removeLastChr = function() {
-        return value = value.substring(0, value.length - 2);
       };
       isControlChr = function() {
         if (chr.match(/[\(\)"\s\n]/g)) {

@@ -4,13 +4,13 @@ drews = require "drews-mixins"
 
 velvet = require "./velvet.coffee"
 
-{lex, compile, run} = velvet
+{parse, compile, run} = velvet
 
 test "should parse simple parenthetical", ->
   code = """
     say hi
   """
-  symbols = lex code
+  symbols = parse code
   shouldBe = [["say", "hi"]]
   equalish shouldBe, symbols
 
@@ -18,7 +18,7 @@ test "should parse nested parenthetical", ->
   code = """
     say (hi how are you) (doing)
   """
-  symbols = lex code
+  symbols = parse code
   shouldBe = [["say", ["hi", "how", "are", "you"], ["doing"]]]
   equalish shouldBe, symbols
 
@@ -28,7 +28,7 @@ test "should parse with strings", ->
     say "hi"
     how (are "you doing?")
   """
-  symbols = lex code
+  symbols = parse code
   shouldBe = [
     ["say", ["string", "hi"]]
     ["how", ["are", ["string", "you doing?"]]]
@@ -43,7 +43,7 @@ test "simple with multiline", ->
 
       "you doing?")
   """
-  symbols = lex code
+  symbols = parse code
   shouldBe = [
     ["say", ["string", "hi"]]
     ["how", ["are", ["string", "you doing?"]]]
@@ -57,7 +57,7 @@ test "indent test", ->
    how (are "you doing?")
      very well (thank you)
   """
-  symbols = lex code
+  symbols = parse code
   shouldBe = [
     ["say", ["string", "hi"]]
     ["how", 
@@ -75,7 +75,7 @@ test "indent test 2", ->
      very well (thank you)
    and back out
   """
-  symbols = lex code
+  symbols = parse code
   shouldBe = [
     ["say", ["string", "hi"]]
     ["how", 
@@ -102,7 +102,7 @@ test "should parse with special string syntax", ->
       it can have anything
     yea
   """
-  symbols = lex code
+  symbols = parse code
   shouldBe = [
     ["set", "mystr", ["string", str]]
     ["something", "else"]

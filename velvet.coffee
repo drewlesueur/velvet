@@ -1,9 +1,14 @@
+# todo
+# macros
+# static scope // should it be static?
+# interpolation
+
 _ = require "underscore"
 define = (args..., name, ret) -> module?.exports = ret()
 define "velvet", () ->
   velvet = {}
   velvet.version = "0.0.1"
-  velvet.lex = (code) ->
+  velvet.parse = (code) ->
     literalParens = 0
     newLineIndentWidth = 0
     indentWidth = 0
@@ -15,7 +20,6 @@ define "velvet", () ->
 
     code = code.split ""
     addChr = -> value += chr
-    removeLastChr = -> value = value.substring(0, value.length - 2)
     isControlChr = -> 
       if chr.match(/[\(\)"\s\n]/g)
         true
@@ -139,5 +143,3 @@ define "velvet", () ->
 
     func
   velvet
-
-

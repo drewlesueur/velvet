@@ -2,14 +2,14 @@ test "setting a variable"
   band is "aterciopelados"
   assert band is "aterciopelados"
   
-test "using arrays"
-  my_array is (array "zer0" 1 2 "three" "four" 5)
-  assert my_array 0 is "zer0"
-  assert my_array 1 is 1
-  assert my_array -1 is 5
+test "using lists"
+  my_list is (list "zer0" 1 2 "three" "four" 5)
+  assert my_list 0 is "zer0"
+  assert my_list 1 is 1
+  assert my_list -1 is 5
 
 test "using objects"
-  my_ojb is (object name "aterciopelados" members (array "a" "h"))
+  my_ojb is (object name "aterciopelados" members (list "a" "h"))
   assert my_obj name is "aterciopelados" 
   assert my_obj members 0 is "a"
   
@@ -17,7 +17,7 @@ test "using objects"
 test "creating the object for you like php"
   set my_obj2 albums 1 "El Dorado"
   my_obj2 albums 1 is "El Dorado"
-  assert my_obj2 keys similar (array "albums")
+  assert my_obj2 keys similar (list "albums")
   assert my_obj2 albums 1 is "El Dorado"
 
   
@@ -51,7 +51,23 @@ test "simple multi line strings"
     this is a " quote
 
     
+test "setting a function"
+  say_hi is fn (name)
+    print "hello #{name}"
+
+test "setting an object"
+  band is object
+    name       "atericiopelados"
+    started     1992
+    music_type "rock"
+    members     list
+      "Andrea Echeverri" 
+      "Hector Buitrago"
+       
     
+test "calling a function with no params"    
+  beach.title_wave .
+
     
     
 

@@ -8,6 +8,17 @@ define = (args..., name, ret) -> module?.exports = ret()
 define "velvet", () ->
   velvet = {}
   velvet.version = "0.0.1"
+  velvet.demacro = (code) -> #this time code is an array
+    scope = {}
+    #recursively demacroify 
+    #for func in code
+      #method = 
+
+
+
+  
+
+
   velvet.parse = (code) ->
     literalParens = 0
     newLineIndentWidth = 0
@@ -86,6 +97,7 @@ define "velvet", () ->
         addChr()
       else if chr is "\n"
         if literalParens is 0
+          closeValue()
           state = "newline"
           newLineIndentWidth = 0
       else if chr is "("

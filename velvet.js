@@ -11,6 +11,10 @@
     var velvet;
     velvet = {};
     velvet.version = "0.0.1";
+    velvet.demacro = function(code) {
+      var scope;
+      return scope = {};
+    };
     velvet.parse = function(code) {
       var addChr, chr, closeParens, closeParensBasedOnIndent, closeQuote, closeValue, func, funcStack, inFunc, inNewLine, inQuote, inTripleQuote, indentWidth, index, isControlChr, isQuoteChr, isSpaceChr, literalParens, newLineIndentWidth, startParens, state, threeQuotes, value, _len;
       literalParens = 0;
@@ -100,6 +104,7 @@
           return addChr();
         } else if (chr === "\n") {
           if (literalParens === 0) {
+            closeValue();
             state = "newline";
             return newLineIndentWidth = 0;
           }

@@ -109,5 +109,55 @@ test "should parse with special string syntax", ->
   ]
   equalish shouldBe, symbols
 
+test "test some nesting", () ->
+
+  code = """
+    band is object
+      name "atericiopelados"
+      started 1992
+      music_type "rock"
+      members list
+        "Andrea Echeverri" 
+        "Hector Buitrago"
+      numbers list
+        1
+        2
+      other_numbers list 3 4
+      albums objx
+        first "con el corazon"
+        second "another one"
+      other_albums object blue "oye" pink "gozo"
+    other_band is "Julieta Venegas"
+
+
+
+  """
+  symbols = parse code
+  shouldBe = [
+    ["band", "is", "object",
+      ["name", ["string", "atericiopelados"]],
+      ["started", "1992"],
+      ["music_type", ["string", "rock"]],
+      ["members", "list",
+        [["string", "Andrea Echeverri"]],
+        [["string", "Hector Buitrago"]],
+      ],
+      ["numbers", "list"
+        ["1"],
+        ["2"]
+      ],
+      ["other_numbers", "ilist", "3", "4"],
+      ["albums", "objx",
+        ["first", ["string", "con el corazon"]],
+        ["second", ["string", "another one"]],
+      ],
+      ["other_albums", "iobject", "blue", ["string", "oye"], "pink", ["string", "gozo"]]
+    ],
+    ["other_band", "is", ["string", "Julieta Venegas"]]
+  ]
+  equalish shouldBe, symbols
+
+
+
 
 fin()

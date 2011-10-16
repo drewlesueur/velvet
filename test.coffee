@@ -122,11 +122,11 @@ test "test some nesting", () ->
       numbers list
         1
         2
-      other_numbers list 3 4
+      other_numbers ilist 3 4
       albums objx
         first "con el corazon"
         second "another one"
-      other_albums object blue "oye" pink "gozo"
+      other_albums iobject blue "oye" pink "gozo"
     other_band is "Julieta Venegas"
 
 

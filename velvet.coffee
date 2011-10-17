@@ -8,15 +8,60 @@ define = (args..., name, ret) -> module?.exports = ret()
 define "velvet", () ->
   velvet = {}
   velvet.version = "0.0.1"
-  velvet.demacro = (code) -> #this time code is an array
-    scope = {}
+  getDefaultScope = ->
+    {macros: {}}
+  velvet.compile = (code) -> #already demacroified code
+    js = """
+      var isString = function(obj) {
+        return !!(obj === '' || (obj && obj.charCodeAt && obj.substr));
+      };
+      var velvetLib = {
+        set: function(a, b, scope) {
+          scope[a] = b
+        },
+        get: function(a, scope) {
+          return scope[a]; 
+        },
+        string: function(a, scope) {
+          return a; 
+        }
+      };
+      var velvetCode = #{JSON.stringify code};
+      var vevetEval = function (code) {
+        if (isString(code)) {
+          return velvetCode.get(code, scope);
+        }
+        var expression;
+        var last;
+        for (var i = 0; i < code.length; i++) {
+          expression = code[i];
+          for (var j = 0; j < expression.length; expression++) {
+            expression[j] = velvetEval(expression[j])
+          };
+          var func = velvetLib.get(expression[0]);   
+          var args = expression.slice(1); 
+          last = func(args);
+        };
+        return last;
+      };
+      velvetEval(velvetCode);
+    """
+  velvet.compileMacros = (code, scope = {}) -> #this time code is an array
     #recursively demacroify 
+    if _.isArray(code)
+      for func, index in code
+        funcName = func[0]
+        if (funcName not in scope) and (funcName of scope.macros)
+          1
+    else
+      return code
+        
+      
+       
+    
+    
     #for func in code
       #method = 
-
-
-
-  
 
 
   velvet.parse = (code) ->

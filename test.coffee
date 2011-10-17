@@ -157,7 +157,8 @@ test "test some nesting", () ->
   ]
   equalish shouldBe, symbols
 
-
+test "interpolate", () ->
+  
 
 
 fin()

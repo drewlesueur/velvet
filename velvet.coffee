@@ -10,43 +10,8 @@ define "velvet", () ->
   velvet.version = "0.0.1"
   getDefaultScope = ->
     {macros: {}}
-  velvet.compile = (code) -> #already demacroified code
-    js = """
-      var isString = function(obj) {
-        return !!(obj === '' || (obj && obj.charCodeAt && obj.substr));
-      };
-      var velvetLib = {
-        set: function(a, b, scope) {
-          scope[a] = b
-        },
-        get: function(a, scope) {
-          return scope[a]; 
-        },
-        string: function(a, scope) {
-          return a; 
-        }
-      };
-      var velvetCode = #{JSON.stringify code};
-      var vevetEval = function (code) {
-        if (isString(code)) {
-          return velvetCode.get(code, scope);
-        }
-        var expression;
-        var last;
-        for (var i = 0; i < code.length; i++) {
-          expression = code[i];
-          for (var j = 0; j < expression.length; expression++) {
-            expression[j] = velvetEval(expression[j])
-          };
-          var func = velvetLib.get(expression[0]);   
-          var args = expression.slice(1); 
-          last = func(args);
-        };
-        return last;
-      };
-      velvetEval(velvetCode);
-    """
-  velvet.compileMacros = (code, scope = {}) -> #this time code is an array
+  compileMacros = velvet.compileMacros = (code, scope = {}) -> #this time code is an array
+    return code
     #recursively demacroify 
     if _.isArray(code)
       for func, index in code
@@ -64,7 +29,7 @@ define "velvet", () ->
       #method = 
 
 
-  velvet.parse = (code) ->
+  parse = velvet.parse = (code) ->
     literalParens = 0
     newLineIndentWidth = 0
     indentWidth = 0
@@ -199,4 +164,39 @@ define "velvet", () ->
       closeParens() #close implicit parens
 
     func
+  
+  lib = velvet.lib = 
+    set: (a, b, scope) ->
+      scope[a] = b
+    get: (a, scope) ->
+      return scope[a]; 
+    string: (a, scope) ->
+      return a; 
+
+  velvetEval = velvet.velvetEval = (code, scope = {}) ->
+    if isString(code)
+      velvetCode.get(code, scope)
+
+    last = null
+    for expression, i in code
+      for item, j in expression
+        expression[j] = velvetEval(item)
+      func = velvetLib.get(expression[0])
+      args = expression.slice(1)
+      last = func(args)
+    last
+  
+  run = velvet.run = (code, scope = {}) ->
+    code = parse code 
+    code = compileMacros code
+    velvetEval code
+
+
+  velvet.compile = (code, scope = {}, lang="js") -> #already demacroified code
+    code = parse code
+    code = compileMacros code
+    js = """
+    """
+    return js
+
   velvet

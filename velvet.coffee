@@ -168,35 +168,44 @@ define "velvet", () ->
   lib = velvet.lib = 
     set: (a, b, scope) ->
       scope[a] = b
+      return b
     get: (a, scope) ->
       return scope[a]; 
     string: (a, scope) ->
       return a; 
+    do: (args) ->
+      last = null
+      for code in args
+        last = velvetElval code
+      return last
+
 
   velvetEval = velvet.velvetEval = (code, scope = {}) ->
-    if isString(code)
-      velvetCode.get(code, scope)
-
+    scope = lib
+    if _.isString(code)
+      return lib.get(code, scope)
     last = null
-    for expression, i in code
-      for item, j in expression
-        expression[j] = velvetEval(item)
-      func = velvetLib.get(expression[0])
-      args = expression.slice(1)
-      last = func(args)
+    expression = code
+    console.log expression
+    for item, j in expression
+      expression[j] = velvetEval(item)
+      console.log "the expression gives"
+      console.log expression[j]
+
+    console.log "func is"
+    console.log JSON.stringify func
+    func = expression[0]
+    args = expression.slice(1)
+    last = func(args)
     last
   
   run = velvet.run = (code, scope = {}) ->
     code = parse code 
     code = compileMacros code
-    velvetEval code
+    code.unshift("do")
+    #return "1"
+    return velvetEval code
 
 
-  velvet.compile = (code, scope = {}, lang="js") -> #already demacroified code
-    code = parse code
-    code = compileMacros code
-    js = """
-    """
-    return js
 
   velvet

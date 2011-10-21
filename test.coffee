@@ -159,6 +159,19 @@ test "test some nesting", () ->
 
 test "interpolate", () ->
   
+test "set someting", () ->
+  code = """
+    set "name" "drew"
+  """
+  ret = velvet.run code
+  return
+  code = """
+    set "age" "27"
+  """
+
+  ret = velvet.run code
+
+  eq ret, "27"
 
 
 fin()

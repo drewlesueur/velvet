@@ -4,7 +4,7 @@
 # interpolation
 
 _ = require "underscore"
-define = (args..., name, ret) -> module?.exports = ret()
+define ?= (args..., name, ret) -> module?.exports = ret()
 define "velvet", () ->
   velvet = {}
   velvet.version = "0.0.1"
@@ -166,37 +166,58 @@ define "velvet", () ->
     func
   
   lib = velvet.lib = 
-    set: (a, b, scope) ->
+    set: ([a,b], scope) ->
+      funcName = "set"
       scope[a] = b
       return b
     get: (a, scope) ->
+      funcName = "get"
       return scope[a]; 
-    string: (a, scope) ->
+    string_remove: (a, scope) ->
+      funcName = "string"
       return a; 
-    do: (args) ->
+    do: (args, scope) ->
+      funcName = "do"
       last = null
-      for code in args
-        last = velvetElval code
-      return last
+      return args[args.length - 1]
 
-
+  indent = ""
   velvetEval = velvet.velvetEval = (code, scope = {}) ->
-    scope = lib
-    if _.isString(code)
-      return lib.get(code, scope)
-    last = null
-    expression = code
-    console.log expression
-    for item, j in expression
-      expression[j] = velvetEval(item)
-      console.log "the expression gives"
-      console.log expression[j]
+    log = (text, what) ->
+      if not velvet.debug then return 
+      if _.isFunction what
+        what = what.toString()
+      else
+        what = JSON.stringify what
+      console.log "#{indent}", text, "#{what}"
 
-    console.log "func is"
-    console.log JSON.stringify func
-    func = expression[0]
-    args = expression.slice(1)
-    last = func(args)
+    indent += "----"
+    scope = lib
+    expression = code
+    log "original expression", expression
+    
+    last = null
+    if _.isString(code)
+      last = lib.get(code, scope) 
+      # should i do ("variable") and ("string" "this is a string")
+      # or ("get" "variable") and ("this is a string")
+    else if expression[0] == "string" #TODO: this should be part of the macros
+      last =  expression[1]
+    else
+      _.each expression, (item, j) ->
+        expression[j] = velvetEval(item) #TODO: first compile Macros
+      
+      log "new expression is", expression
+
+      func = expression[0]
+      log "func is", func
+      args = expression.slice(1)
+      log "args are", args
+      last = func(args, scope)
+
+    log "returning", last
+
+    indent = indent.substring(0, indent.length - 4)
     last
   
   run = velvet.run = (code, scope = {}) ->

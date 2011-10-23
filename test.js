@@ -3,7 +3,7 @@
   _ = require("underscore");
   drews = require("drews-mixins");
   _ref = drews.testing, test = _ref.test, ok = _ref.ok, eq = _ref.eq, fin = _ref.fin, equalish = _ref.equalish;
-  velvet = require("./velvet.coffee");
+  velvet = require("velvet");
   parse = velvet.parse, compile = velvet.compile, run = velvet.run;
   test("should parse simple parenthetical", function() {
     var code, shouldBe, symbols;
@@ -57,10 +57,30 @@
   });
   test("test some nesting", function() {
     var code, shouldBe, symbols;
-    code = "band is object\n  name \"atericiopelados\"\n  started 1992\n  music_type \"rock\"\n  members list\n    \"Andrea Echeverri\" \n    \"Hector Buitrago\"\n  numbers list\n    1\n    2\n  other_numbers list 3 4\n  albums objx\n    first \"con el corazon\"\n    second \"another one\"\n  other_albums object blue \"oye\" pink \"gozo\"\nother_band is \"Julieta Venegas\"\n\n\n";
+    code = "band is object\n  name \"atericiopelados\"\n  started 1992\n  music_type \"rock\"\n  members list\n    \"Andrea Echeverri\" \n    \"Hector Buitrago\"\n  numbers list\n    1\n    2\n  other_numbers ilist 3 4\n  albums objx\n    first \"con el corazon\"\n    second \"another one\"\n  other_albums iobject blue \"oye\" pink \"gozo\"\nother_band is \"Julieta Venegas\"\n\n\n";
     symbols = parse(code);
     shouldBe = [["band", "is", "object", ["name", ["string", "atericiopelados"]], ["started", "1992"], ["music_type", ["string", "rock"]], ["members", "list", [["string", "Andrea Echeverri"]], [["string", "Hector Buitrago"]]], ["numbers", "list", ["1"], ["2"]], ["other_numbers", "ilist", "3", "4"], ["albums", "objx", ["first", ["string", "con el corazon"]], ["second", ["string", "another one"]]], ["other_albums", "iobject", "blue", ["string", "oye"], "pink", ["string", "gozo"]]], ["other_band", "is", ["string", "Julieta Venegas"]]];
     return equalish(shouldBe, symbols);
+  });
+  test("interpolate", function() {});
+  test("just velvet Eval string", function() {
+    var code, ret;
+    code = ["string", "test"];
+    ret = velvet.velvetEval(code);
+    return eq(ret, "test");
+  });
+  test("just velvet Eval", function() {
+    var code, ret;
+    code = ["set", ["string", "x"], ["string", "hello world"]];
+    ret = velvet.velvetEval(code);
+    return eq(ret, "hello world");
+  });
+  test("set someting", function() {
+    var code, ret;
+    code = "set \"age\" \"test this out\"";
+    ret = velvet.run(code);
+    eq(ret, "test this out");
+    return velvet.debug = false;
   });
   fin();
 }).call(this);

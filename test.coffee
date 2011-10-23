@@ -2,7 +2,7 @@ _ = require "underscore"
 drews = require "drews-mixins"
 {test, ok, eq, fin, equalish} = drews.testing
 
-velvet = require "./velvet.coffee"
+velvet = require "velvet"
 
 {parse, compile, run} = velvet
 
@@ -158,20 +158,28 @@ test "test some nesting", () ->
   equalish shouldBe, symbols
 
 test "interpolate", () ->
-  
+
+test "just velvet Eval string", ->
+  code = ["string", "test"]
+  ret = velvet.velvetEval(code)
+  eq ret, "test"
+
+ 
+test "just velvet Eval", ->
+  code = ["set", ["string", "x"], ["string", "hello world"]]
+  ret = velvet.velvetEval(code)
+  eq ret, "hello world"
+
+
 test "set someting", () ->
+
   code = """
-    set "name" "drew"
+    set "age" "test this out"
   """
   ret = velvet.run code
-  return
-  code = """
-    set "age" "27"
-  """
 
-  ret = velvet.run code
-
-  eq ret, "27"
+  eq ret, "test this out"
+  velvet.debug = false
 
 
 fin()

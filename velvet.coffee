@@ -11,13 +11,25 @@ define "velvet", () ->
   getDefaultScope = ->
     {macros: {}}
   compileMacros = velvet.compileMacros = (code, scope = {}) -> #this time code is an array
-    return code
     #recursively demacroify 
+    # and keep doing it until you get no macros left in the code
+    _.each code, (line, index) ->
+      first = line[0] 
+      rest = line.slice(1)
+      if _.isString(first)
+        
+      else
+
+
+  expandMacro: 
+       
+
+
     if _.isArray(code)
       for func, index in code
         funcName = func[0]
         if (funcName not in scope) and (funcName of scope.macros)
-          1
+          
     else
       return code
         
@@ -180,9 +192,18 @@ define "velvet", () ->
       funcName = "do"
       last = null
       return args[args.length - 1]
+    macro: (args, scope) ->
+    comment: ->
+    macros:
+      func: ->
+      macro: ->
+      same: ->
+      expand: ->
+      
+
 
   indent = ""
-  velvetEval = velvet.velvetEval = (code, scope = {}) ->
+  velvetEval = velvet.velvetEval = (code, scope = lib) ->
     log = (text, what) ->
       if not velvet.debug then return 
       if _.isFunction what
@@ -192,20 +213,19 @@ define "velvet", () ->
       console.log "#{indent}", text, "#{what}"
 
     indent += "----"
-    scope = lib
     expression = code
     log "original expression", expression
     
     last = null
     if _.isString(code)
-      last = lib.get(code, scope) 
+      last = scope.get(code, scope) 
       # should i do ("variable") and ("string" "this is a string")
       # or ("get" "variable") and ("this is a string")
     else if expression[0] == "string" #TODO: this should be part of the macros
       last =  expression[1]
     else
       _.each expression, (item, j) ->
-        expression[j] = velvetEval(item) #TODO: first compile Macros
+        expression[j] = velvetEval(item)
       
       log "new expression is", expression
 
@@ -224,7 +244,6 @@ define "velvet", () ->
     code = parse code 
     code = compileMacros code
     code.unshift("do")
-    #return "1"
     return velvetEval code
 
 

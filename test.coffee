@@ -181,5 +181,15 @@ test "set someting", () ->
   eq ret, "test this out"
   velvet.debug = false
 
+test "macro", ->
+  #TODO make this a macro test
+  velvet.debug = true
+  code = """
+    set "same" (macro yo)
+  """
+  ret = velvet.run code
+  equalish ret, ["the", "same", "as", "it", "came"] 
+
+
 
 fin()

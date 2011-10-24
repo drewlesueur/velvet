@@ -1,6 +1,6 @@
 test "setting a variable"
   band is "aterciopelados"
-  assert band is "aterciopelados"
+  band should be "aterciopelados"
   
 test "using lists"
   my_list is (list "zer0" 1 2 "three" "four" 5)

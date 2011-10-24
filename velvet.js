@@ -216,13 +216,21 @@
         funcName = "do";
         last = null;
         return args[args.length - 1];
+      },
+      macro: function(args, scope) {},
+      comment: function() {},
+      macros: {
+        func: function() {},
+        macro: function() {},
+        same: function() {},
+        expand: function() {}
       }
     };
     indent = "";
     velvetEval = velvet.velvetEval = function(code, scope) {
       var args, expression, func, last, log;
       if (scope == null) {
-        scope = {};
+        scope = lib;
       }
       log = function(text, what) {
         if (!velvet.debug) {
@@ -236,12 +244,11 @@
         return console.log("" + indent, text, "" + what);
       };
       indent += "----";
-      scope = lib;
       expression = code;
       log("original expression", expression);
       last = null;
       if (_.isString(code)) {
-        last = lib.get(code, scope);
+        last = scope.get(code, scope);
       } else if (expression[0] === "string") {
         last = expression[1];
       } else {

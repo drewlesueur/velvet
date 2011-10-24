@@ -82,5 +82,12 @@
     eq(ret, "test this out");
     return velvet.debug = false;
   });
+  test("macro", function() {
+    var code, ret;
+    velvet.debug = true;
+    code = "set \"same\" (macro yo)";
+    ret = velvet.run(code);
+    return equalish(ret, ["the", "same", "as", "it", "came"]);
+  });
   fin();
 }).call(this);

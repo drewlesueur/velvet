@@ -181,14 +181,46 @@ test "set someting", () ->
   eq ret, "test this out"
   velvet.debug = false
 
-test "macro", ->
+false and test "macro", ->
   #TODO make this a macro test
-  velvet.debug = true
+  #velvet.debug = true
   code = """
     set "same" (macro yo)
+    
   """
   ret = velvet.run code
   equalish ret, ["the", "same", "as", "it", "came"] 
+
+test "simple set", ->
+  code = """
+    set "name" "Drew"
+  """
+  ret = velvet.run code
+  equalish ret, "Drew"
+
+test "set and get", ->
+  code = """
+    set "band" "Aterciopelados"
+    set "grupo" band
+  """
+  ret = velvet.run code
+  eq ret, "Aterciopelados"
+
+
+test "adding and nesting", ->
+  velvet.debug = true
+    #set "sum" (add 2 3 4 5)
+  code = """
+    set "sum" (add 1 2)
+  """
+  ret = velvet.run code
+  #def ret velvet "run" code
+  #run = velvet.run code 
+  #def ret 3
+    
+  eq ret, 3
+
+
 
 
 

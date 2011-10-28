@@ -15,7 +15,7 @@
     };
   }
   define("velvet", function() {
-    var compileMacros, getDefaultScope, indent, lib, parse, run, velvet, velvetEval;
+    var compileMacros, expandMacro, getDefaultScope, indent, lib, parse, run, velvet, velvetEval;
     velvet = {};
     velvet.version = "0.0.1";
     getDefaultScope = function() {
@@ -24,19 +24,30 @@
       };
     };
     compileMacros = velvet.compileMacros = function(code, scope) {
-      var func, funcName, index, _len, _results;
       if (scope == null) {
         scope = {};
       }
       return code;
+      return _.each(code, function(line, index) {
+        var first, rest;
+        first = line[0];
+        rest = line.slice(1);
+        if (_.isString(first)) {} else {
+
+        }
+      });
+    };
+    expandMacro = function(code, scope) {
+      var func, funcName, index, _len;
+      return code;
       if (_.isArray(code)) {
-        _results = [];
         for (index = 0, _len = code.length; index < _len; index++) {
           func = code[index];
           funcName = func[0];
-          _results.push((__indexOf.call(scope, funcName) < 0) && (funcName in scope.macros) ? 1 : void 0);
+          if ((__indexOf.call(scope, funcName) < 0) && (funcName in scope.macros)) {
+            return;
+          }
         }
-        return _results;
       } else {
         return code;
       }
@@ -217,6 +228,15 @@
         last = null;
         return args[args.length - 1];
       },
+      add: function(args) {
+        var sum, val, _i, _len;
+        sum = 0;
+        for (_i = 0, _len = args.length; _i < _len; _i++) {
+          val = args[_i];
+          sum += val - 0;
+        }
+        return sum;
+      },
       macro: function(args, scope) {},
       comment: function() {},
       macros: {
@@ -248,6 +268,9 @@
       log("original expression", expression);
       last = null;
       if (_.isString(code)) {
+        if (code.match(/^\d/)) {
+          return code - 0;
+        }
         last = scope.get(code, scope);
       } else if (expression[0] === "string") {
         last = expression[1];

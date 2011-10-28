@@ -10,7 +10,9 @@ define "velvet", () ->
   velvet.version = "0.0.1"
   getDefaultScope = ->
     {macros: {}}
+
   compileMacros = velvet.compileMacros = (code, scope = {}) -> #this time code is an array
+    return code
     #recursively demacroify 
     # and keep doing it until you get no macros left in the code
     _.each code, (line, index) ->
@@ -20,15 +22,14 @@ define "velvet", () ->
         
       else
 
-
-  expandMacro: 
-       
-
-
+  # in progress?
+  expandMacro = (code, scope) ->
+    return code
     if _.isArray(code)
       for func, index in code
         funcName = func[0]
         if (funcName not in scope) and (funcName of scope.macros)
+          return 
           
     else
       return code
@@ -192,6 +193,11 @@ define "velvet", () ->
       funcName = "do"
       last = null
       return args[args.length - 1]
+    add: (args) ->
+      sum = 0
+      for val in args
+        sum += val - 0
+      sum
     macro: (args, scope) ->
     comment: ->
     macros:
@@ -218,6 +224,8 @@ define "velvet", () ->
     
     last = null
     if _.isString(code)
+      if code.match /^\d/
+        return code - 0
       last = scope.get(code, scope) 
       # should i do ("variable") and ("string" "this is a string")
       # or ("get" "variable") and ("this is a string")

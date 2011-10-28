@@ -82,12 +82,30 @@
     eq(ret, "test this out");
     return velvet.debug = false;
   });
-  test("macro", function() {
+  false && test("macro", function() {
     var code, ret;
-    velvet.debug = true;
-    code = "set \"same\" (macro yo)";
+    code = "set \"same\" (macro yo)\n";
     ret = velvet.run(code);
     return equalish(ret, ["the", "same", "as", "it", "came"]);
+  });
+  test("simple set", function() {
+    var code, ret;
+    code = "set \"name\" \"Drew\"";
+    ret = velvet.run(code);
+    return equalish(ret, "Drew");
+  });
+  test("set and get", function() {
+    var code, ret;
+    code = "set \"band\" \"Aterciopelados\"\nset \"grupo\" band";
+    ret = velvet.run(code);
+    return eq(ret, "Aterciopelados");
+  });
+  test("adding and nesting", function() {
+    var code, ret;
+    velvet.debug = true;
+    code = "set \"sum\" (add 1 2)";
+    ret = velvet.run(code);
+    return eq(ret, 3);
   });
   fin();
 }).call(this);

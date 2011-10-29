@@ -1,11 +1,6 @@
 (function() {
   var _;
-  var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
-    for (var i = 0, l = this.length; i < l; i++) {
-      if (this[i] === item) return i;
-    }
-    return -1;
-  };
+  var __slice = Array.prototype.slice;
   _ = require("underscore");
   if (typeof define === "undefined" || define === null) {
     define = function() {
@@ -15,41 +10,35 @@
     };
   }
   define("velvet", function() {
-    var compileMacros, expandMacro, getDefaultScope, indent, lib, parse, run, velvet, velvetEval;
+    var compileMacros, indent, lib, parse, run, velvet, velvetEval;
     velvet = {};
     velvet.version = "0.0.1";
-    getDefaultScope = function() {
-      return {
-        macros: {}
-      };
-    };
-    compileMacros = velvet.compileMacros = function(code, scope) {
+    compileMacros = velvet.compileMacros = function(code, scope, debug) {
+      var first, rest, yoyo, _ref;
       if (scope == null) {
-        scope = {};
+        scope = lib;
       }
-      return code;
-      return _.each(code, function(line, index) {
-        var first, rest;
-        first = line[0];
-        rest = line.slice(1);
-        if (_.isString(first)) {} else {
-
-        }
-      });
-    };
-    expandMacro = function(code, scope) {
-      var func, funcName, index, _len;
-      return code;
-      if (_.isArray(code)) {
-        for (index = 0, _len = code.length; index < _len; index++) {
-          func = code[index];
-          funcName = func[0];
-          if ((__indexOf.call(scope, funcName) < 0) && (funcName in scope.macros)) {
-            return;
-          }
-        }
-      } else {
+      if (debug) {
+        yoyo = 1;
+      }
+      if (code === null) {
+        return null;
+      } else if (_.isString(code)) {
         return code;
+      } else if (_.isArray(code)) {
+        first = code[0];
+        if (_.isString(first)) {
+          rest = code.slice(1);
+          if (first in scope.macros) {
+            code = (_ref = scope.macros)[first].apply(_ref, rest);
+          }
+          return code;
+        } else {
+          _.each(code, function(line, index) {
+            return code[index] = compileMacros(line, scope);
+          });
+          return code;
+        }
       }
     };
     parse = velvet.parse = function(code) {
@@ -242,7 +231,19 @@
       macros: {
         func: function() {},
         macro: function() {},
-        same: function() {},
+        swap: function(x, y) {
+          return ["list", y, x];
+        },
+        same: function() {
+          var arg, args, arr, _i, _len;
+          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+          arr = [];
+          for (_i = 0, _len = args.length; _i < _len; _i++) {
+            arg = args[_i];
+            arr.push(["string", arg]);
+          }
+          return ["list"].concat(__slice.call(arr));
+        },
         expand: function() {}
       }
     };

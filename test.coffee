@@ -4,7 +4,7 @@ drews = require "drews-mixins"
 
 velvet = require "velvet"
 
-{parse, compile, run} = velvet
+{parse, compile, run, compileMacros} = velvet
 
 test "should parse simple parenthetical", ->
   code = """
@@ -212,6 +212,38 @@ test "adding and nesting", ->
   ret = velvet.run code
   eq ret, 10
 
+test "compileMacros", ->
+  code = ["same", "as", "it", "came"]
+  ret = compileMacros code, null, 1
+  equalish ret, [
+    "list" 
+    ["string", "as"]
+    ["string", "it"]
+    ["string", "came"]
+  ]
+
+test "macros that generate more macros that also compile", ->
+  code = ["swap", "ho", "hi"] 
+  ret = compileMacros code
+  equalish ret, ["list", "hi", "ho"]  
+
+  code = ["swap", ["add", 100, 1], ["add", 1, 1]] 
+  ret = compileMacros code
+  equalish ret, ["list", ["add", 1, 1], ["add", 100, 1]] 
+
+  code = ["swap", 
+    ["add", 100, 1], 
+    ["same", "yo", "hi"]
+  ] 
+  ret = compileMacros code
+
+  equalish ret, ["list", 
+    ["list", ["string", "yo"], ["string", "hi"]],
+    ["add", 100, 1]
+  ] 
+
+  
+
 test "built in macros", ->
   return
   #TODO make this a macro test
@@ -219,7 +251,7 @@ test "built in macros", ->
     set "values" (same the same as it came)
   """
   ret = velvet.run code
-  eq ret, ["the", "same", "as", "it", "came"] 
+  #eq ret, ["the", "same", "as", "it", "came"] 
 
 
 

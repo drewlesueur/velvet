@@ -1,10 +1,10 @@
 (function() {
-  var compile, drews, eq, equalish, fin, ok, parse, run, test, velvet, _, _ref;
+  var compile, compileMacros, drews, eq, equalish, fin, ok, parse, run, test, velvet, _, _ref;
   _ = require("underscore");
   drews = require("drews-mixins");
   _ref = drews.testing, test = _ref.test, ok = _ref.ok, eq = _ref.eq, fin = _ref.fin, equalish = _ref.equalish;
   velvet = require("velvet");
-  parse = velvet.parse, compile = velvet.compile, run = velvet.run;
+  parse = velvet.parse, compile = velvet.compile, run = velvet.run, compileMacros = velvet.compileMacros;
   test("should parse simple parenthetical", function() {
     var code, shouldBe, symbols;
     code = "say hi";
@@ -106,12 +106,29 @@
     ret = velvet.run(code);
     return eq(ret, 10);
   });
+  test("compileMacros", function() {
+    var code, ret;
+    code = ["same", "as", "it", "came"];
+    ret = compileMacros(code, null, 1);
+    return equalish(ret, ["list", ["string", "as"], ["string", "it"], ["string", "came"]]);
+  });
+  test("macros that generate more macros that also compile", function() {
+    var code, ret;
+    code = ["swap", "ho", "hi"];
+    ret = compileMacros(code);
+    equalish(ret, ["list", "hi", "ho"]);
+    code = ["swap", ["add", 100, 1], ["add", 1, 1]];
+    ret = compileMacros(code);
+    equalish(ret, ["list", ["add", 1, 1], ["add", 100, 1]]);
+    code = ["swap", ["add", 100, 1], ["same", "yo", "hi"]];
+    ret = compileMacros(code);
+    return equalish(ret, ["list", ["list", ["string", "yo"], ["string", "hi"]], ["add", 100, 1]]);
+  });
   test("built in macros", function() {
     var code, ret;
     return;
     code = "set \"values\" (same the same as it came)";
-    ret = velvet.run(code);
-    return eq(ret, ["the", "same", "as", "it", "came"]);
+    return ret = velvet.run(code);
   });
   fin();
 }).call(this);

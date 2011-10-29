@@ -8,38 +8,28 @@ define ?= (args..., name, ret) -> module?.exports = ret()
 define "velvet", () ->
   velvet = {}
   velvet.version = "0.0.1"
-  getDefaultScope = ->
-    {macros: {}}
 
-  compileMacros = velvet.compileMacros = (code, scope = {}) -> #this time code is an array
-    return code
+  compileMacros = velvet.compileMacros = (code, scope = lib, debug) -> #this time code is an array
     #recursively demacroify 
     # and keep doing it until you get no macros left in the code
-    _.each code, (line, index) ->
-      first = line[0] 
-      rest = line.slice(1)
-      if _.isString(first)
-        
-      else
-
-  # in progress?
-  expandMacro = (code, scope) ->
-    return code
-    if _.isArray(code)
-      for func, index in code
-        funcName = func[0]
-        if (funcName not in scope) and (funcName of scope.macros)
-          return 
-          
-    else
+    if debug
+      yoyo = 1
+    if code is null
+      return null 
+    else if _.isString code
       return code
-        
-      
-       
-    
-    
-    #for func in code
-      #method = 
+    else if _.isArray code
+      first = code[0]
+      if _.isString first
+        rest = code.slice(1)
+        if first of scope.macros
+          code = scope.macros[first] rest...
+          #while (!_.isEqual)
+        return code
+      else
+        _.each code, (line, index) ->
+          code[index] = compileMacros line, scope #scope will change? 
+        return code
 
 
   parse = velvet.parse = (code) ->
@@ -203,7 +193,18 @@ define "velvet", () ->
     macros:
       func: ->
       macro: ->
-      same: ->
+      swap: (x, y) -> #just a macro that returns a list of swapped
+        ["list", y, x]
+      same: (args...) ->
+        arr = []
+        for arg in args
+          arr.push ["string", arg]
+        ["list", arr...]
+      
+
+
+
+
       expand: ->
       
 

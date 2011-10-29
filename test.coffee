@@ -234,7 +234,6 @@ test "compileMacros where its not the first thing", ->
   ]
 
 test "macros that generate more macros that also compile", ->
-  return
   code = ["swap", "ho", "hi"] 
   ret = compileMacros code
   equalish ret, ["list", "hi", "ho"]  
@@ -248,7 +247,7 @@ test "macros that generate more macros that also compile", ->
     ["same", "yo", "hi"]
   ] 
   ret = compileMacros code
-
+ 
   equalish ret, ["list", 
     ["list", ["string", "yo"], ["string", "hi"]],
     ["add", 100, 1]

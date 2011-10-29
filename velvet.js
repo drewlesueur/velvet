@@ -10,9 +10,12 @@
     };
   }
   define("velvet", function() {
-    var compileMacros, indent, lib, parse, run, velvet, velvetEval;
+    var compileMacros, indent, isLiteral, lib, parse, run, velvet, velvetEval;
     velvet = {};
     velvet.version = "0.0.1";
+    isLiteral = function(code) {
+      return _.isString(code) || (parseFloat(code) === code);
+    };
     compileMacros = velvet.compileMacros = function(code, scope, debug) {
       var first, rest, yoyo, _ref;
       if (scope == null) {
@@ -23,7 +26,7 @@
       }
       if (code === null) {
         return null;
-      } else if (_.isString(code)) {
+      } else if (isLiteral(code)) {
         return code;
       } else if (_.isArray(code)) {
         first = code[0];

@@ -8,7 +8,9 @@ define ?= (args..., name, ret) -> module?.exports = ret()
 define "velvet", () ->
   velvet = {}
   velvet.version = "0.0.1"
-
+  
+  isLiteral = (code) ->
+    _.isString(code) or (parseFloat(code) == code)
   compileMacros = velvet.compileMacros = (code, scope = lib, debug) -> #this time code is an array
     #recursively demacroify 
     # and keep doing it until you get no macros left in the code
@@ -16,7 +18,7 @@ define "velvet", () ->
       yoyo = 1
     if code is null
       return null 
-    else if _.isString code
+    else if isLiteral code
       return code
     else if _.isArray code
       first = code[0]

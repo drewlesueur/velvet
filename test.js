@@ -120,7 +120,6 @@
   });
   test("macros that generate more macros that also compile", function() {
     var code, ret;
-    return;
     code = ["swap", "ho", "hi"];
     ret = compileMacros(code);
     equalish(ret, ["list", "hi", "ho"]);

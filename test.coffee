@@ -214,7 +214,7 @@ test "adding and nesting", ->
 
 test "compileMacros", ->
   code = ["same", "as", "it", "came"]
-  ret = compileMacros code, null, 1
+  ret = compileMacros code
   equalish ret, [
     "list" 
     ["string", "as"]
@@ -222,7 +222,19 @@ test "compileMacros", ->
     ["string", "came"]
   ]
 
+test "compileMacros where its not the first thing", ->
+  code = ["list", ["same", "as", "it", "came"]]
+  ret = compileMacros code, null, 1
+  equalish ret, [
+    "list" , ["list"
+      ["string", "as"]
+      ["string", "it"]
+      ["string", "came"]
+    ]
+  ]
+
 test "macros that generate more macros that also compile", ->
+  return
   code = ["swap", "ho", "hi"] 
   ret = compileMacros code
   equalish ret, ["list", "hi", "ho"]  

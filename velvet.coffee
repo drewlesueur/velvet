@@ -24,8 +24,14 @@ define "velvet", () ->
         rest = code.slice(1)
         if first of scope.macros
           code = scope.macros[first] rest...
-          #while (!_.isEqual)
-        return code
+          while (not _.isEqual(code, code = compileMacros(code)))
+            true
+          return code
+        else
+          if _.isArray rest
+            return [first, compileMacros(rest, scope)...]
+          else
+            return code
       else
         _.each code, (line, index) ->
           code[index] = compileMacros line, scope #scope will change? 

@@ -31,8 +31,17 @@
           rest = code.slice(1);
           if (first in scope.macros) {
             code = (_ref = scope.macros)[first].apply(_ref, rest);
+            while (!_.isEqual(code, code = compileMacros(code))) {
+              true;
+            }
+            return code;
+          } else {
+            if (_.isArray(rest)) {
+              return [first].concat(__slice.call(compileMacros(rest, scope)));
+            } else {
+              return code;
+            }
           }
-          return code;
         } else {
           _.each(code, function(line, index) {
             return code[index] = compileMacros(line, scope);

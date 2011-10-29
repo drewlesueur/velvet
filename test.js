@@ -109,11 +109,18 @@
   test("compileMacros", function() {
     var code, ret;
     code = ["same", "as", "it", "came"];
-    ret = compileMacros(code, null, 1);
+    ret = compileMacros(code);
     return equalish(ret, ["list", ["string", "as"], ["string", "it"], ["string", "came"]]);
+  });
+  test("compileMacros where its not the first thing", function() {
+    var code, ret;
+    code = ["list", ["same", "as", "it", "came"]];
+    ret = compileMacros(code, null, 1);
+    return equalish(ret, ["list", ["list", ["string", "as"], ["string", "it"], ["string", "came"]]]);
   });
   test("macros that generate more macros that also compile", function() {
     var code, ret;
+    return;
     code = ["swap", "ho", "hi"];
     ret = compileMacros(code);
     equalish(ret, ["list", "hi", "ho"]);

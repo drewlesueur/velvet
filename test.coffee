@@ -256,11 +256,11 @@ test "macros that generate more macros that also compile", ->
   
 
 test "built in macros", ->
-  return
   #TODO make this a macro test
   code = """
     set "values" (same the same as it came)
   """
+  velvet.debug = true
   ret = velvet.run code
   #eq ret, ["the", "same", "as", "it", "came"] 
 

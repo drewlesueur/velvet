@@ -177,6 +177,8 @@ define "velvet", () ->
     func
   
   lib = velvet.lib = 
+    list: (args, scope) ->
+      args
     set: ([a,b], scope) ->
       funcName = "set"
       scope[a] = b

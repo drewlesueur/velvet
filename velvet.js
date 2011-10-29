@@ -206,6 +206,9 @@
       return func;
     };
     lib = velvet.lib = {
+      list: function(args, scope) {
+        return args;
+      },
       set: function(_arg, scope) {
         var a, b, funcName;
         a = _arg[0], b = _arg[1];

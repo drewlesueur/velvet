@@ -132,8 +132,8 @@
   });
   test("built in macros", function() {
     var code, ret;
-    return;
     code = "set \"values\" (same the same as it came)";
+    velvet.debug = true;
     return ret = velvet.run(code);
   });
   fin();

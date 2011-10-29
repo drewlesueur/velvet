@@ -82,12 +82,6 @@
     eq(ret, "test this out");
     return velvet.debug = false;
   });
-  false && test("macro", function() {
-    var code, ret;
-    code = "set \"same\" (macro yo)\n";
-    ret = velvet.run(code);
-    return equalish(ret, ["the", "same", "as", "it", "came"]);
-  });
   test("simple set", function() {
     var code, ret;
     code = "set \"name\" \"Drew\"";
@@ -102,10 +96,22 @@
   });
   test("adding and nesting", function() {
     var code, ret;
-    velvet.debug = true;
     code = "set \"sum\" (add 1 2)";
     ret = velvet.run(code);
     return eq(ret, 3);
+  });
+  test("adding and nesting", function() {
+    var code, ret;
+    code = "set \"sum\" (add 1 (add 4 5))";
+    ret = velvet.run(code);
+    return eq(ret, 10);
+  });
+  test("built in macros", function() {
+    var code, ret;
+    return;
+    code = "set \"values\" (same the same as it came)";
+    ret = velvet.run(code);
+    return eq(ret, ["the", "same", "as", "it", "came"]);
   });
   fin();
 }).call(this);

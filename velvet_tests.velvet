@@ -1,24 +1,50 @@
 test "setting a variable"
   band is "aterciopelados"
   band should be "aterciopelados"
-  
+
+
+
 test "using lists"
-  my_list is (list "zer0" 1 2 "three" "four" 5)
-  assert my_list 0 is "zer0"
-  assert my_list 1 is 1
-  assert my_list -1 is 5
+  my_list is list "zer0" 1 2 "three" "four" 5
+  my_list 0 should be "zer0"
+  my_list 1 should be 1
+  my_list -1 should be is 5
 
 test "using objects"
-  my_ojb is (object name "aterciopelados" members (list "a" "h"))
-  assert my_obj name is "aterciopelados" 
-  assert my_obj members 0 is "a"
+  my_obj is (object name "aterciopelados" members (list "a" "h"))
+  my_obj name should be "aterciopelados"
+  my_obj members 0 should be "a"
   
 
 test "creating the object for you like php"
-  set my_obj2 albums 1 "El Dorado"
   my_obj2 albums 1 is "El Dorado"
-  assert my_obj2 keys similar (list "albums")
-  assert my_obj2 albums 1 is "El Dorado"
+  my_obj2 keys should be list "albums"
+  my_obj2 albums 1 should be "El Dorado"
+
+test "objects and functions"
+  hero is something
+  hero name is "Mr. Starman"
+  hero save_world is func (world)
+    hero worlds_saved is hero worlds_saved + 1
+    hero
+  hero save_cat is func (name)
+    hero cats_saved append (name)
+
+  prop is "name"
+
+  the_name is hero (prop) 
+
+  #chaining
+  hero keys 0
+  
+  hero chain save world () save_cat ("mrs. catty")
+
+  
+
+
+   
+
+  
 
   
 test "lexical scope"      
@@ -75,3 +101,36 @@ test "calling a function with no params"
 just use indention to figure out\nwhere it ends"
 
 
+
+
+
+
+-----
+
+
+band is "a"
+
+setSmile is func ((objectmacro band) trim)
+  band smile is true
+  
+  trim "process  "
+
+def setSmile (band trim)
+  def (band smile) true
+  
+
+setSmile is func (band trim)
+  macroify band
+
+  
+def should "should"
+def be "be"
+
+test "setting a variable"
+  def band "Aterciopelados"
+  band should be "Aterciopelados"
+
+test "using lists"
+  def mylist list "zer0" 1 2 "three"
+  mylist 0 should be "zer0"
+  mylist 1 should be 

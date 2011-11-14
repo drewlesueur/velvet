@@ -54,7 +54,7 @@
       }
     };
     parse = velvet.parse = function(code) {
-      var addChr, chr, closeParens, closeParensBasedOnIndent, closeQuote, closeValue, func, funcStack, inFunc, inNewLine, inQuote, inTripleQuote, indentWidth, index, isControlChr, isQuoteChr, isSpaceChr, literalParens, newLineIndentWidth, startParens, state, threeQuotes, value, _len;
+      var addChr, chr, closeParens, closeParensBasedOnIndent, closeQuote, closeValue, doDot, func, funcStack, inFunc, inNewLine, inQuote, inTripleQuote, indentWidth, index, isControlChr, isQuoteChr, isSpaceChr, literalParens, newLineIndentWidth, startParens, state, threeQuotes, value, _len;
       literalParens = 0;
       newLineIndentWidth = 0;
       indentWidth = 0;
@@ -67,7 +67,7 @@
         return value += chr;
       };
       isControlChr = function() {
-        if (chr.match(/[\(\)"\s\n]/g)) {
+        if (chr.match(/[\(\)"\s\n\.]/g)) {
           return true;
         } else {
           return false;
@@ -80,7 +80,7 @@
         }
       };
       closeQuote = function() {
-        func.push(["string", value]);
+        func.push("'" + value);
         value = "";
         return state = "func";
       };
@@ -137,6 +137,15 @@
           return inFunc();
         }
       };
+      doDot = function() {
+        if (func.length > 0) {
+          value = "'" + value;
+        }
+        closeValue();
+        if (func.length > 1) {
+          return func = [func];
+        }
+      };
       inFunc = function() {
         if (!isControlChr()) {
           return addChr();
@@ -146,9 +155,15 @@
             state = "newline";
             return newLineIndentWidth = 0;
           }
+        } else if (chr === ".") {
+          return doDot();
         } else if (chr === "(") {
           literalParens += 1;
-          return startParens();
+          if (value === "") {
+            return startParens();
+          } else {
+            return doDot();
+          }
         } else if (chr === ")") {
           literalParens -= 1;
           return closeParens();
@@ -219,6 +234,9 @@
       get: function(a, scope) {
         var funcName;
         funcName = "get";
+        if (a[0] === "'") {
+          return a.slice(1);
+        }
         return scope[a];
       },
       string_remove: function(a, scope) {
@@ -255,7 +273,7 @@
           arr = [];
           for (_i = 0, _len = args.length; _i < _len; _i++) {
             arg = args[_i];
-            arr.push(["string", arg]);
+            arr.push("'" + arg);
           }
           return ["list"].concat(__slice.call(arr));
         },
@@ -299,6 +317,9 @@
         log("func is", func);
         args = expression.slice(1);
         log("args are", args);
+        if (_.isString(func)) {
+          return func;
+        }
         last = func(args, scope);
       }
       log("returning", last);

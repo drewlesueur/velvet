@@ -53,7 +53,7 @@ define "velvet", () ->
     code = code.split ""
     addChr = -> value += chr
     isControlChr = -> 
-      if chr.match(/[\(\)"\s\n]/g)
+      if chr.match(/[\(\)"\s\n\.]/g)
         true
       else
         false
@@ -64,7 +64,7 @@ define "velvet", () ->
         value = ""
 
     closeQuote = ->
-      func.push ["string", value]
+      func.push "'" + value
       value = ""
       state = "func"
 
@@ -112,6 +112,13 @@ define "velvet", () ->
         state = "func"
         startParens()
         inFunc()
+    
+    doDot = () ->
+      if func.length > 0
+        value = "'" + value
+      closeValue()
+      if func.length > 1
+        func = [func]
 
     inFunc = () ->
       if not isControlChr() 
@@ -121,9 +128,14 @@ define "velvet", () ->
           closeValue()
           state = "newline"
           newLineIndentWidth = 0
+      else if chr is "."
+        doDot()
       else if chr is "("
         literalParens += 1 
-        startParens()
+        if value is ""
+          startParens()
+        else
+          doDot()
       else if chr is ")"
         literalParens -= 1 
         closeParens()
@@ -185,6 +197,8 @@ define "velvet", () ->
       return b
     get: (a, scope) ->
       funcName = "get"
+      if a[0] == "'"
+        return a.slice(1)
       return scope[a]; 
     string_remove: (a, scope) ->
       funcName = "string"
@@ -208,16 +222,11 @@ define "velvet", () ->
       same: (args...) ->
         arr = []
         for arg in args
-          arr.push ["string", arg]
+          arr.push "'" + arg
         ["list", arr...]
       
-
-
-
-
       expand: ->
       
-
 
   indent = ""
   velvetEval = velvet.velvetEval = (code, scope = lib) ->
@@ -252,6 +261,8 @@ define "velvet", () ->
       log "func is", func
       args = expression.slice(1)
       log "args are", args
+      if _.isString func
+        return func # for now
       last = func(args, scope)
 
     log "returning", last

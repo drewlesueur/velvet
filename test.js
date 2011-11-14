@@ -23,28 +23,28 @@
     var code, shouldBe, symbols;
     code = "say \"hi\"\nhow (are \"you doing?\")";
     symbols = parse(code);
-    shouldBe = [["say", ["string", "hi"]], ["how", ["are", ["string", "you doing?"]]]];
+    shouldBe = [["say", "'hi"], ["how", ["are", "'you doing?"]]];
     return equalish(shouldBe, symbols);
   });
   test("simple with multiline", function() {
     var code, shouldBe, symbols;
     code = "say \"hi\"\nhow (are \n\n  \"you doing?\")";
     symbols = parse(code);
-    shouldBe = [["say", ["string", "hi"]], ["how", ["are", ["string", "you doing?"]]]];
+    shouldBe = [["say", "'hi"], ["how", ["are", "'you doing?"]]];
     return equalish(shouldBe, symbols);
   });
   test("indent test", function() {
     var code, shouldBe, symbols;
     code = "say \"hi\"\nhow (are \"you doing?\")\n  very well (thank you)";
     symbols = parse(code);
-    shouldBe = [["say", ["string", "hi"]], ["how", ["are", ["string", "you doing?"]], ["very", "well", ["thank", "you"]]]];
+    shouldBe = [["say", "'hi"], ["how", ["are", "'you doing?"], ["very", "well", ["thank", "you"]]]];
     return equalish(shouldBe, symbols);
   });
   test("indent test 2", function() {
     var code, shouldBe, symbols;
     code = "say \"hi\"\nhow (are \"you doing?\")\n  very well (thank you)\nand back out";
     symbols = parse(code);
-    shouldBe = [["say", ["string", "hi"]], ["how", ["are", ["string", "you doing?"]], ["very", "well", ["thank", "you"]]], ["and", "back", "out"]];
+    shouldBe = [["say", "'hi"], ["how", ["are", "'you doing?"], ["very", "well", ["thank", "you"]]], ["and", "back", "out"]];
     return equalish(shouldBe, symbols);
   });
   test("should parse with special string syntax", function() {
@@ -52,26 +52,26 @@
     code = "set mystr \"\"\"\n  this is a multi line string\n    it can have anything\n  yea\nsomething else\n";
     str = "this is a multi line string\n  it can have anything\nyea";
     symbols = parse(code);
-    shouldBe = [["set", "mystr", ["string", str]], ["something", "else"]];
+    shouldBe = [["set", "mystr", "'" + str], ["something", "else"]];
     return equalish(shouldBe, symbols);
   });
   test("test some nesting", function() {
     var code, shouldBe, symbols;
     code = "band is object\n  name \"atericiopelados\"\n  started 1992\n  music_type \"rock\"\n  members list\n    \"Andrea Echeverri\" \n    \"Hector Buitrago\"\n  numbers list\n    1\n    2\n  other_numbers ilist 3 4\n  albums objx\n    first \"con el corazon\"\n    second \"another one\"\n  other_albums iobject blue \"oye\" pink \"gozo\"\nother_band is \"Julieta Venegas\"\n\n\n";
     symbols = parse(code);
-    shouldBe = [["band", "is", "object", ["name", ["string", "atericiopelados"]], ["started", "1992"], ["music_type", ["string", "rock"]], ["members", "list", [["string", "Andrea Echeverri"]], [["string", "Hector Buitrago"]]], ["numbers", "list", ["1"], ["2"]], ["other_numbers", "ilist", "3", "4"], ["albums", "objx", ["first", ["string", "con el corazon"]], ["second", ["string", "another one"]]], ["other_albums", "iobject", "blue", ["string", "oye"], "pink", ["string", "gozo"]]], ["other_band", "is", ["string", "Julieta Venegas"]]];
+    shouldBe = [["band", "is", "object", ["name", "'atericiopelados"], ["started", "1992"], ["music_type", "'rock"], ["members", "list", ["'Andrea Echeverri"], ["'Hector Buitrago"]], ["numbers", "list", ["1"], ["2"]], ["other_numbers", "ilist", "3", "4"], ["albums", "objx", ["first", "'con el corazon"], ["second", "'another one"]], ["other_albums", "iobject", "blue", "'oye", "pink", "'gozo"]], ["other_band", "is", "'Julieta Venegas"]];
     return equalish(shouldBe, symbols);
   });
   test("interpolate", function() {});
   test("just velvet Eval string", function() {
     var code, ret;
-    code = ["string", "test"];
+    code = ["'test"];
     ret = velvet.velvetEval(code);
     return eq(ret, "test");
   });
   test("just velvet Eval", function() {
     var code, ret;
-    code = ["set", ["string", "x"], ["string", "hello world"]];
+    code = ["set", "'x", "'hello world"];
     ret = velvet.velvetEval(code);
     return eq(ret, "hello world");
   });
@@ -110,13 +110,13 @@
     var code, ret;
     code = ["same", "as", "it", "came"];
     ret = compileMacros(code);
-    return equalish(ret, ["list", ["string", "as"], ["string", "it"], ["string", "came"]]);
+    return equalish(ret, ["list", "'as", "'it", "'came"]);
   });
   test("compileMacros where its not the first thing", function() {
     var code, ret;
     code = ["list", ["same", "as", "it", "came"]];
     ret = compileMacros(code, null, 1);
-    return equalish(ret, ["list", ["list", ["string", "as"], ["string", "it"], ["string", "came"]]]);
+    return equalish(ret, ["list", ["list", "'as", "'it", "'came"]]);
   });
   test("macros that generate more macros that also compile", function() {
     var code, ret;
@@ -128,13 +128,40 @@
     equalish(ret, ["list", ["add", 1, 1], ["add", 100, 1]]);
     code = ["swap", ["add", 100, 1], ["same", "yo", "hi"]];
     ret = compileMacros(code);
-    return equalish(ret, ["list", ["list", ["string", "yo"], ["string", "hi"]], ["add", 100, 1]]);
+    return equalish(ret, ["list", ["list", "'yo", "'hi"], ["add", 100, 1]]);
   });
   test("built in macros", function() {
     var code, ret;
     code = "set \"values\" (same the same as it came)";
-    velvet.debug = true;
     return ret = velvet.run(code);
+  });
+  test("dot notation!", function() {
+    var code, dropInventory, expectedResult, firstGamePlayer, gamePlayers, ret;
+    code = "game.players.first.dropInventory(\"map\" \"keys\")";
+    ret = parse(code);
+    gamePlayers = ["game", "'players"];
+    firstGamePlayer = [gamePlayers, "'first"];
+    dropInventory = [firstGamePlayer, "'dropInventory"];
+    expectedResult = [dropInventory, "'map", "'keys"];
+    expectedResult = [expectedResult];
+    console.log(JSON.stringify(ret));
+    console.log(JSON.stringify(expectedResult));
+    return equalish(ret, expectedResult);
+  });
+  test("dot notation 2", function() {
+    var code, expected, ret;
+    code = "resource.get(100 200).update(1)";
+    expected = [[[[["resource", "'get"], 100, 200], "update"], 1]];
+    ret = parse(code);
+    return equalish(ret, expected);
+  });
+  test("dot notation 3", function() {
+    var code, expected, ret;
+    return;
+    code = "resource.get(100 200)\nresource.save(300)";
+    expected = [[["resource", "'get"], 100, 200], [["resource", "'save"], 300]];
+    ret = parse(code);
+    return equalish(ret, expected);
   });
   fin();
 }).call(this);

@@ -30,8 +30,8 @@ test "should parse with strings", ->
   """
   symbols = parse code
   shouldBe = [
-    ["say", ["string", "hi"]]
-    ["how", ["are", ["string", "you doing?"]]]
+    ["say", "'hi"]
+    ["how", ["are", "'you doing?"]]
   ]
   equalish shouldBe, symbols
 
@@ -45,8 +45,8 @@ test "simple with multiline", ->
   """
   symbols = parse code
   shouldBe = [
-    ["say", ["string", "hi"]]
-    ["how", ["are", ["string", "you doing?"]]]
+    ["say", "'hi"]
+    ["how", ["are", "'you doing?"]]
   ]
   equalish shouldBe, symbols
 
@@ -59,9 +59,9 @@ test "indent test", ->
   """
   symbols = parse code
   shouldBe = [
-    ["say", ["string", "hi"]]
+    ["say", "'hi"]
     ["how", 
-      ["are", ["string", "you doing?"]],
+      ["are", "'you doing?"],
       ["very", "well", ["thank", "you"]]
     ]
   ]
@@ -77,9 +77,9 @@ test "indent test 2", ->
   """
   symbols = parse code
   shouldBe = [
-    ["say", ["string", "hi"]]
+    ["say", "'hi"]
     ["how", 
-      ["are", ["string", "you doing?"]],
+      ["are", "'you doing?"],
       ["very", "well", ["thank", "you"]]
     ]
     ["and", "back", "out"]
@@ -104,7 +104,7 @@ test "should parse with special string syntax", ->
   """
   symbols = parse code
   shouldBe = [
-    ["set", "mystr", ["string", str]]
+    ["set", "mystr", "'" + str]
     ["something", "else"]
   ]
   equalish shouldBe, symbols
@@ -135,12 +135,12 @@ test "test some nesting", () ->
   symbols = parse code
   shouldBe = [
     ["band", "is", "object",
-      ["name", ["string", "atericiopelados"]],
+      ["name", "'atericiopelados"],
       ["started", "1992"],
-      ["music_type", ["string", "rock"]],
+      ["music_type", "'rock"],
       ["members", "list",
-        [["string", "Andrea Echeverri"]],
-        [["string", "Hector Buitrago"]],
+        ["'Andrea Echeverri"],
+        ["'Hector Buitrago"],
       ],
       ["numbers", "list"
         ["1"],
@@ -148,25 +148,25 @@ test "test some nesting", () ->
       ],
       ["other_numbers", "ilist", "3", "4"],
       ["albums", "objx",
-        ["first", ["string", "con el corazon"]],
-        ["second", ["string", "another one"]],
+        ["first", "'con el corazon"],
+        ["second", "'another one"],
       ],
-      ["other_albums", "iobject", "blue", ["string", "oye"], "pink", ["string", "gozo"]]
+      ["other_albums", "iobject", "blue", "'oye", "pink", "'gozo"]
     ],
-    ["other_band", "is", ["string", "Julieta Venegas"]]
+    ["other_band", "is", "'Julieta Venegas"]
   ]
   equalish shouldBe, symbols
 
 test "interpolate", () ->
 
 test "just velvet Eval string", ->
-  code = ["string", "test"]
+  code = ["'test"]
   ret = velvet.velvetEval(code)
   eq ret, "test"
 
  
 test "just velvet Eval", ->
-  code = ["set", ["string", "x"], ["string", "hello world"]]
+  code = ["set", "'x", "'hello world"]
   ret = velvet.velvetEval(code)
   eq ret, "hello world"
 
@@ -217,9 +217,9 @@ test "compileMacros", ->
   ret = compileMacros code
   equalish ret, [
     "list" 
-    ["string", "as"]
-    ["string", "it"]
-    ["string", "came"]
+    "'as"
+    "'it"
+    "'came"
   ]
 
 test "compileMacros where its not the first thing", ->
@@ -227,9 +227,9 @@ test "compileMacros where its not the first thing", ->
   ret = compileMacros code, null, 1
   equalish ret, [
     "list" , ["list"
-      ["string", "as"]
-      ["string", "it"]
-      ["string", "came"]
+      "'as"
+      "'it"
+      "'came"
     ]
   ]
 
@@ -249,7 +249,7 @@ test "macros that generate more macros that also compile", ->
   ret = compileMacros code
  
   equalish ret, ["list", 
-    ["list", ["string", "yo"], ["string", "hi"]],
+    ["list", "'yo", "'hi"],
     ["add", 100, 1]
   ] 
 
@@ -260,9 +260,47 @@ test "built in macros", ->
   code = """
     set "values" (same the same as it came)
   """
-  velvet.debug = true
   ret = velvet.run code
   #eq ret, ["the", "same", "as", "it", "came"] 
+
+test "dot notation!", ->
+  code = """
+    game.players.first.dropInventory("map" "keys")
+  """
+  ret = parse code
+  gamePlayers = ["game", "'players"]
+  firstGamePlayer = [gamePlayers, "'first"]
+  dropInventory = [firstGamePlayer, "'dropInventory"]
+  expectedResult = [dropInventory, "'map", "'keys"]
+  expectedResult = [expectedResult]
+  console.log JSON.stringify ret
+  console.log JSON.stringify expectedResult
+  equalish  ret, expectedResult  
+
+test "dot notation 2", ->
+  code = """
+     resource.get(100 200).update(1)
+  """
+  expected = [
+    [[[["resource", "'get"], 100, 200], "update"], 1]
+  ]
+  ret = parse code
+  equalish ret, expected
+
+test "dot notation 3", ->
+  #TODO: this test
+  return
+  code = """
+     resource.get(100 200)
+     resource.save(300)
+  """
+  expected = [
+    [["resource", "'get"], 100, 200]
+    [["resource", "'save"], 300]
+  ]
+  ret = parse code
+  equalish ret, expected
+
 
 
 

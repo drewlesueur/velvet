@@ -109,6 +109,7 @@ test "should parse with special string syntax", ->
   ]
   equalish shouldBe, symbols
 
+
 test "test some nesting", () ->
 
   code = """
@@ -157,6 +158,7 @@ test "test some nesting", () ->
   ]
   equalish shouldBe, symbols
 
+
 test "interpolate", () ->
 
 test "just velvet Eval string", ->
@@ -166,7 +168,7 @@ test "just velvet Eval string", ->
 
  
 test "just velvet Eval", ->
-  code = ["set", "'x", "'hello world"]
+  code = ["set_raw", "'x", "'hello world"]
   ret = velvet.velvetEval(code)
   eq ret, "hello world"
 
@@ -174,7 +176,7 @@ test "just velvet Eval", ->
 test "set someting", () ->
 
   code = """
-    set "age" "test this out"
+    set age "test this out"
   """
   ret = velvet.run code
 
@@ -184,15 +186,15 @@ test "set someting", () ->
 
 test "simple set", ->
   code = """
-    set "name" "Drew"
+    set name "Drew"
   """
   ret = velvet.run code
   equalish ret, "Drew"
 
 test "set and get", ->
   code = """
-    set "band" "Aterciopelados"
-    set "grupo" band
+    set band "Aterciopelados"
+    set grupo band
   """
   ret = velvet.run code
   eq ret, "Aterciopelados"
@@ -200,14 +202,16 @@ test "set and get", ->
 
 test "adding and nesting", ->
   code = """
-    set "sum" (add 1 2)
+    set sum (add 1 2)
   """
   ret = velvet.run code
   eq ret, 3
 
+
+
 test "adding and nesting", ->
   code = """
-    set "sum" (add 1 (add 4 5))
+    set sum (add 1 (add 4 5))
   """
   ret = velvet.run code
   eq ret, 10
@@ -232,6 +236,7 @@ test "compileMacros where its not the first thing", ->
       "'came"
     ]
   ]
+
 
 test "macros that generate more macros that also compile", ->
   code = ["swap", "ho", "hi"] 
@@ -258,12 +263,15 @@ test "macros that generate more macros that also compile", ->
 test "built in macros", ->
   #TODO make this a macro test
   code = """
-    set "values" (same the same as it came)
+    set values (same the same as it came)
   """
   ret = velvet.run code
   #eq ret, ["the", "same", "as", "it", "came"] 
 
 test "dot notation!", ->
+  #TODO: uncomment this out, it works
+  return
+
   code = """
     game.players.first.dropInventory("map" "keys")
   """
@@ -279,29 +287,86 @@ test "dot notation!", ->
 
 test "dot notation 2", ->
   code = """
-     resource.get(100 200).update(1)
+    a.b(1 2).c(3)
+    d.e(4).f(5 6)
+    g.h()
+    i.j
   """
+
   expected = [
-    [[[["resource", "'get"], 100, 200], "update"], 1]
+    [[[["a", "'b"], "1", "2"], "'c"], "3"]
+    [[[["d", "'e"], "4"], "'f"], "5", "6"]
+    [["g", "'h"]]
+    ["i", "'j"]
   ]
   ret = parse code
   equalish ret, expected
 
+test "dot notation 2.5", ->
+  return #TODO Fix this test
+  yy = 1
+  code = """
+    a.b stuff
+    a.b(1) "stuff"
+    (a "b") "stuff"
+  """
+
+  expected = [
+    [["a", "'b"], "stuff"]
+    [[["a", "'b"], "1"], "'stuff"]
+    [["a", "'b"], "'stuff"]
+  ]
+  ret = parse code
+  equalish ret, expected
+  
+
 test "dot notation 3", ->
-  #TODO: this test
-  return
   code = """
      resource.get(100 200)
      resource.save(300)
   """
   expected = [
-    [["resource", "'get"], 100, 200]
-    [["resource", "'save"], 300]
+    [["resource", "'get"], "100", "200"]
+    [["resource", "'save"], "300"]
+  ]
+  ret = parse code
+  equalish ret, expected
+
+test "compare dot notation and space notation", ->
+  code = """
+    a.b
+    a "b"
+  """
+  expected = [
+    ["a", "'b"]
+    ["a", "'b"]
   ]
   ret = parse code
   equalish ret, expected
 
 
+test "dot notation with intent", ->
+  #TODO get this test to pass
+  return
+  code = """
+    a.b() c
+
+    a.b c
+
+    a.b
+      c
+
+    a.b()
+      c
+  """
+  expected = [
+    [[["a", "'b"]], "c"]
+    [["a", "'b"], "c"]
+    [["a", "'b"], ["c"]]
+    [[["a", "'b"]], ["c"]]
+  ]
+  ret = parse code
+  equalish ret, expected
 
 
 fin()

@@ -10,7 +10,7 @@
     };
   }
   define("velvet", function() {
-    var compileMacros, indent, isLiteral, lib, parse, run, velvet, velvetEval;
+    var compileMacros, indent, isLiteral, lib, parse, parseCompile, run, velvet, velvetEval;
     velvet = {};
     velvet.version = "0.0.1";
     isLiteral = function(code) {
@@ -54,8 +54,21 @@
       }
     };
     parse = velvet.parse = function(code) {
-      var addChr, chr, closeParens, closeParensBasedOnIndent, closeQuote, closeValue, doDot, func, funcStack, inFunc, inNewLine, inQuote, inTripleQuote, indentWidth, index, isControlChr, isQuoteChr, isSpaceChr, literalParens, newLineIndentWidth, startParens, state, threeQuotes, value, _len;
+      var addChr, checkEndedOnDotFunc, chr, closeParens, closeParensBasedOnIndent, closeQuote, closeValue, doDot, endedOnDotFunc, func, funcStack, inDot, inFunc, inNewLine, inQuote, inTripleQuote, indentWidth, index, isControlChr, isQuoteChr, isSpaceChr, literalParens, newLineIndentWidth, parensStack, setEndedOnDotFunc, startParens, state, threeQuotes, value, _len;
       literalParens = 0;
+      parensStack = [];
+      inDot = false;
+      endedOnDotFunc = false;
+      setEndedOnDotFunc = function(val) {
+        console.log(val);
+        endedOnDotFunc = val;
+        if (val) {
+          console.log("endedOnDotFunc!!!");
+          return console.log(JSON.stringify(func));
+        } else {
+          return console.log("false!!");
+        }
+      };
       newLineIndentWidth = 0;
       indentWidth = 0;
       value = "";
@@ -75,8 +88,17 @@
       };
       closeValue = function() {
         if (value.length > 0) {
+          if (inDot) {
+            value = "'" + value;
+            inDot = false;
+            setEndedOnDotFunc(true);
+          } else {
+            setEndedOnDotFunc(false);
+          }
           func.push(value);
           return value = "";
+        } else {
+          return inDot = false;
         }
       };
       closeQuote = function() {
@@ -120,6 +142,12 @@
         }
         return _results;
       };
+      checkEndedOnDotFunc = function() {
+        if (endedOnDotFunc) {
+          func = [func];
+          return endedOnDotFunc = false;
+        }
+      };
       inNewLine = function() {
         if (chr === " ") {
           return newLineIndentWidth += 0.5;
@@ -138,15 +166,13 @@
         }
       };
       doDot = function() {
-        if (func.length > 0) {
-          value = "'" + value;
-        }
         closeValue();
         if (func.length > 1) {
           return func = [func];
         }
       };
       inFunc = function() {
+        var parensType;
         if (!isControlChr()) {
           return addChr();
         } else if (chr === "\n") {
@@ -156,17 +182,27 @@
             return newLineIndentWidth = 0;
           }
         } else if (chr === ".") {
-          return doDot();
+          doDot();
+          return inDot = true;
         } else if (chr === "(") {
           literalParens += 1;
           if (value === "") {
+            parensStack.push("normal");
             return startParens();
           } else {
+            parensStack.push("dot");
             return doDot();
           }
         } else if (chr === ")") {
+          parensType = parensStack.pop();
           literalParens -= 1;
-          return closeParens();
+          if (parensType === "normal") {
+            closeParens();
+            return setEndedOnDotFunc(false);
+          } else {
+            closeValue();
+            return setEndedOnDotFunc(true);
+          }
         } else if (isSpaceChr()) {
           return closeValue();
         } else if (isQuoteChr()) {
@@ -224,10 +260,10 @@
       list: function(args, scope) {
         return args;
       },
-      set: function(_arg, scope) {
+      set_raw: function(_arg, scope) {
         var a, b, funcName;
         a = _arg[0], b = _arg[1];
-        funcName = "set";
+        funcName = "set_raw";
         scope[a] = b;
         return b;
       },
@@ -264,6 +300,9 @@
       macros: {
         func: function() {},
         macro: function() {},
+        set: function(x, y, scope) {
+          return ["set_raw", "'" + x, y];
+        },
         swap: function(x, y) {
           return ["list", y, x];
         },
@@ -291,11 +330,10 @@
           return;
         }
         if (_.isFunction(what)) {
-          what = what.toString();
+          return what = what.toString();
         } else {
-          what = JSON.stringify(what);
+          return what = JSON.stringify(what);
         }
-        return console.log("" + indent, text, "" + what);
       };
       indent += "----";
       expression = code;
@@ -334,6 +372,15 @@
       code = compileMacros(code);
       code.unshift("do");
       return velvetEval(code);
+    };
+    parseCompile = velvet.parseCompile = function(code, scope) {
+      if (scope == null) {
+        scope = {};
+      }
+      code = parse(code);
+      code = compileMacros(code);
+      code.unshift("do");
+      return code;
     };
     return velvet;
   });

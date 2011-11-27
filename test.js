@@ -71,38 +71,38 @@
   });
   test("just velvet Eval", function() {
     var code, ret;
-    code = ["set", "'x", "'hello world"];
+    code = ["set_raw", "'x", "'hello world"];
     ret = velvet.velvetEval(code);
     return eq(ret, "hello world");
   });
   test("set someting", function() {
     var code, ret;
-    code = "set \"age\" \"test this out\"";
+    code = "set age \"test this out\"";
     ret = velvet.run(code);
     eq(ret, "test this out");
     return velvet.debug = false;
   });
   test("simple set", function() {
     var code, ret;
-    code = "set \"name\" \"Drew\"";
+    code = "set name \"Drew\"";
     ret = velvet.run(code);
     return equalish(ret, "Drew");
   });
   test("set and get", function() {
     var code, ret;
-    code = "set \"band\" \"Aterciopelados\"\nset \"grupo\" band";
+    code = "set band \"Aterciopelados\"\nset grupo band";
     ret = velvet.run(code);
     return eq(ret, "Aterciopelados");
   });
   test("adding and nesting", function() {
     var code, ret;
-    code = "set \"sum\" (add 1 2)";
+    code = "set sum (add 1 2)";
     ret = velvet.run(code);
     return eq(ret, 3);
   });
   test("adding and nesting", function() {
     var code, ret;
-    code = "set \"sum\" (add 1 (add 4 5))";
+    code = "set sum (add 1 (add 4 5))";
     ret = velvet.run(code);
     return eq(ret, 10);
   });
@@ -132,11 +132,12 @@
   });
   test("built in macros", function() {
     var code, ret;
-    code = "set \"values\" (same the same as it came)";
+    code = "set values (same the same as it came)";
     return ret = velvet.run(code);
   });
   test("dot notation!", function() {
     var code, dropInventory, expectedResult, firstGamePlayer, gamePlayers, ret;
+    return;
     code = "game.players.first.dropInventory(\"map\" \"keys\")";
     ret = parse(code);
     gamePlayers = ["game", "'players"];
@@ -150,16 +151,39 @@
   });
   test("dot notation 2", function() {
     var code, expected, ret;
-    code = "resource.get(100 200).update(1)";
-    expected = [[[[["resource", "'get"], 100, 200], "update"], 1]];
+    code = "a.b(1 2).c(3)\nd.e(4).f(5 6)\ng.h()\ni.j";
+    expected = [[[[["a", "'b"], "1", "2"], "'c"], "3"], [[[["d", "'e"], "4"], "'f"], "5", "6"], [["g", "'h"]], ["i", "'j"]];
+    ret = parse(code);
+    return equalish(ret, expected);
+  });
+  test("dot notation 2.5", function() {
+    var code, expected, ret, yy;
+    return;
+    yy = 1;
+    code = "a.b stuff\na.b(1) \"stuff\"\n(a \"b\") \"stuff\"";
+    expected = [[["a", "'b"], "stuff"], [[["a", "'b"], "1"], "'stuff"], [["a", "'b"], "'stuff"]];
     ret = parse(code);
     return equalish(ret, expected);
   });
   test("dot notation 3", function() {
     var code, expected, ret;
-    return;
     code = "resource.get(100 200)\nresource.save(300)";
-    expected = [[["resource", "'get"], 100, 200], [["resource", "'save"], 300]];
+    expected = [[["resource", "'get"], "100", "200"], [["resource", "'save"], "300"]];
+    ret = parse(code);
+    return equalish(ret, expected);
+  });
+  test("compare dot notation and space notation", function() {
+    var code, expected, ret;
+    code = "a.b\na \"b\"";
+    expected = [["a", "'b"], ["a", "'b"]];
+    ret = parse(code);
+    return equalish(ret, expected);
+  });
+  test("dot notation with intent", function() {
+    var code, expected, ret;
+    return;
+    code = "a.b() c\n\na.b c\n\na.b\n  c\n\na.b()\n  c";
+    expected = [[[["a", "'b"]], "c"], [["a", "'b"], "c"], [["a", "'b"], ["c"]], [[["a", "'b"]], ["c"]]];
     ret = parse(code);
     return equalish(ret, expected);
   });

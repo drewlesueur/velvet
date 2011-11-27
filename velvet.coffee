@@ -42,6 +42,17 @@ define "velvet", () ->
 
   parse = velvet.parse = (code) ->
     literalParens = 0
+    parensStack = []
+    inDot = false
+    endedOnDotFunc = false
+    setEndedOnDotFunc = (val) ->
+      console.log val
+      endedOnDotFunc = val
+      if val
+        console.log "endedOnDotFunc!!!"
+        console.log JSON.stringify func
+      else
+        console.log "false!!"
     newLineIndentWidth = 0
     indentWidth = 0
     value = ""
@@ -60,8 +71,16 @@ define "velvet", () ->
 
     closeValue = ->
       if value.length > 0
+        if inDot
+          value = "'" + value
+          inDot = false
+          setEndedOnDotFunc true
+        else
+          setEndedOnDotFunc false
         func.push value
         value = ""
+      else
+        inDot = false
 
     closeQuote = ->
       func.push "'" + value
@@ -97,6 +116,11 @@ define "velvet", () ->
       for i in [0...closeCount]
         closeParens()
 
+    checkEndedOnDotFunc = ->
+      if endedOnDotFunc
+        func = [func]
+        endedOnDotFunc = false
+
     inNewLine = ->
       if chr is " "
         newLineIndentWidth += 0.5
@@ -114,8 +138,6 @@ define "velvet", () ->
         inFunc()
     
     doDot = () ->
-      if func.length > 0
-        value = "'" + value
       closeValue()
       if func.length > 1
         func = [func]
@@ -130,18 +152,31 @@ define "velvet", () ->
           newLineIndentWidth = 0
       else if chr is "."
         doDot()
+        inDot = true
       else if chr is "("
         literalParens += 1 
         if value is ""
+          parensStack.push("normal")
           startParens()
         else
+          parensStack.push("dot")
           doDot()
       else if chr is ")"
+        parensType = parensStack.pop()
         literalParens -= 1 
-        closeParens()
+        if parensType is "normal"
+          closeParens()
+          setEndedOnDotFunc false
+        else
+          closeValue()
+          setEndedOnDotFunc true
+          
+
       else if isSpaceChr()
+        #checkEndedOnDotFunc() 
         closeValue()
       else if isQuoteChr()
+        #checkEndedOnDotFunc() 
         state = "quote"
 
     inQuote = ->
@@ -191,8 +226,8 @@ define "velvet", () ->
   lib = velvet.lib = 
     list: (args, scope) ->
       args
-    set: ([a,b], scope) ->
-      funcName = "set"
+    set_raw: ([a,b], scope) ->
+      funcName = "set_raw"
       scope[a] = b
       return b
     get: (a, scope) ->
@@ -217,6 +252,8 @@ define "velvet", () ->
     macros:
       func: ->
       macro: ->
+      set: (x, y, scope) ->
+        ["set_raw", "'" + x, y]
       swap: (x, y) -> #just a macro that returns a list of swapped
         ["list", y, x]
       same: (args...) ->
@@ -236,7 +273,6 @@ define "velvet", () ->
         what = what.toString()
       else
         what = JSON.stringify what
-      console.log "#{indent}", text, "#{what}"
 
     indent += "----"
     expression = code
@@ -275,6 +311,14 @@ define "velvet", () ->
     code = compileMacros code
     code.unshift("do")
     return velvetEval code
+
+  parseCompile = velvet.parseCompile = (code, scope = {}) ->
+    code = parse code 
+    code = compileMacros code
+    code.unshift("do")
+    return code
+
+
 
 
 

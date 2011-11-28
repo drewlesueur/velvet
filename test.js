@@ -187,5 +187,11 @@
     ret = parse(code);
     return equalish(ret, expected);
   });
+  test("create a lookup function (object or hash)", function() {
+    var code, ret;
+    code = "set world object\n  sky \"cyan\"\n  grass \"green\"\n\nset grass = world \"grass\"";
+    ret = velvet.velvetEval(code);
+    return eq(ret, "green");
+  });
   fin();
 }).call(this);

@@ -368,5 +368,16 @@ test "dot notation with intent", ->
   ret = parse code
   equalish ret, expected
 
+test "create a lookup function (object or hash)", ->
+  code = """
+    set world object
+      sky "cyan"
+      grass "green"
+
+    set grass = world "grass"
+  """
+  ret = velvet.velvetEval code
+  eq ret, "green"
+
 
 fin()

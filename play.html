@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name = "viewport" content = "width = 320, initial-scale = 1">
+  </head>
+  <script>
+    var start = function () {
+      var q = function (x) {
+        return document.querySelector(x);
+      } 
+      console.log(document.querySelector)
+      scrollTo(0,0);
+      var codeEl = q("#code")
+      var colorsEl = q("#colors")
+      var wordsEl = q("#words")
+      q("#addWord").onclick = function (e) {
+        e.preventDefault();
+        var word = prompt("Enter a new word") 
+        var br = document.createElement("br")
+        var wordEl = document.createElement("span")
+        wordEl.innerHTML = word;
+        wordsEl.appendChild(br);
+        wordsEl.appendChild(wordEl);
+        wordEl.className = "word"
+        var wordEl2 = wordEl.cloneNode(true);
+        wordEl2.classList.add("inCode")
+        codeEl.appendChild(wordEl2);
+
+      }
+      var selected = null;
+      document.body.ontouchstart = function (e) {
+        var touch = e.touches[0]
+        console.log(touch.target.id)
+        var target = touch.target;
+        if (target.classList.contains("inCode")) {
+          target.classList.add("selected")
+          selected = target;
+          setSelected(target);
+        }
+      } 
+    }
+    window.onload = start;
+    
+  </script>
+  <style>
+    .selected {
+      background-color: teal; 
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      font-size: 22px;
+      font-family: Palatino;
+    }
+    a {
+      padding: 5px;
+    }
+    #main {
+      position: absolute;
+      width: 320px;
+      height: 416px;
+      background-color: gray;
+    }
+    .word {
+      padding: 5px; 
+      color: black;
+    }
+    #codew {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 250px;
+      height: 350px;
+      background-color: lightyellow;
+      overflow: scroll;
+    }
+    #wordsw {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 70px;
+      height: 350px;
+      background-color: pink;
+      overflow: scroll;
+    }
+    #words {
+      width: 400px;
+    }
+    #colorsw {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 320px;
+      height: 66px;
+      background-color: lightgreen;
+      overflow: scroll;
+    }
+  </style>
+  <body>
+    <div id="main">
+      <div id="codew">
+        <div id="code">
+          <pre>
+doAll thingsToDo
+    onEachThingToDo thingToDO
+    
+    each thingsToDo
+          </pre>
+        </div>
+      </div>
+      <div id="colorsw">
+        <div id="colors"></div>
+      </div>
+     <div id="wordsw">
+       <div id="words">
+         <a href="#" id="addWord">+</a> 
+       </div>
+     </div>
+    </div>
+  </body>
+
+
+</html>

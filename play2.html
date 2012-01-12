@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+  <head>
+    <!--meta name = "viewport" content = "width = 320, initial-scale = 1">-->
+    <meta name = "viewport" content = "width=1200, initial-scale = 1">
+  </head>
+  <style>
+    .set { color: #4a72f4; }
+    .setFn { color: #01941a; }
+    .callFn { color: #097711; }
+    .argList { color: #bba600; }
+    .arg { color: #e4cb05; }
+    .setList { color: #e4cb05; }
+    .setStr { color: #bb0000; }
+
+  </style>
+  <script>
+    var namedColors = {
+      set: "#4a72f4",
+      setFn: "#01941a",
+      callFn: "",
+      argList: "#c8be00",
+      setList: "#f0e029",
+      setStr: "",
+      arg: "",
+
+    }
+    var start = function () {
+      var q = function (x) {
+        return document.querySelector(x);
+      } 
+      var raw = q("#rawCode").value;
+      var codeBox = q("#code");
+      lines = raw.split("\n")
+      var newLines = []
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        var words = line.split(" ")
+        //console.log(words)
+        lines[i] = word
+        var newWords = []
+        var tabLength = 0;
+        var j = 0;
+        while (true) {
+          var word = words[j];
+          if (word == "") {
+            tabLength += 0.5
+          } else {
+            break;
+          }
+          j += 1;
+        }
+        for (var k = 0; k < tabLength; k++) {
+          newWords.push('<span class="tab"></span>')
+        }
+        console.log(newWords)
+        for (var j = j; j < words.length; j++) {
+          var word = words[j];
+          subWord = word.split(".")
+          var extraClass = "";
+          if (subWord.length > 1) {
+            var first = subWord[0];
+            if (first in namedColors) {
+              color = namedColors[first]
+              extraClass = first
+              word = subWord.slice(1).join(".")
+            }
+          }
+          newWords.push('<span class="word '+extraClass+'">' + word + '</span>');
+        }
+        //console.log(newWords)
+        var newLine = '<div class="line">'+newWords.join(" ")+'</div>';
+        newLines.push(newLine);
+      }
+      raw = newLines.join("\n")
+
+      codeBox.innerHTML = raw
+
+    }
+    window.onload = start
+  </script>
+  <style>
+    .tab { width: 25px; display: inline-block;}
+    * {
+      margin: 0;
+      padding: 0;
+      font-size: 22px;
+      font-family: Palatino;
+    }
+    body {
+      padding: 10px;
+      width: 1200px;
+      line-height: 120%;
+    }
+  </style>
+  </head>
+  <body>
+  <div id="code">
+  </div>
+  
+  <textarea id="rawCode">
+  setFn.doAll argList.waiters
+    set.length waiters.length
+    set.count 0
+    setList.results
+    last = drews.makeEventful {}
+    set._last last
+    setStr._last.test ***this-is-a-test
+    setFn.onEachWaiter arg.waiter arg.index
+      callFn.defer
+        set.waiter call.waiter
+        waiter.once "done", (vals...) ->
+          count += 1
+          results = results.concat vals
+          if count is length
+            _last.emit "done", results...
+    _.each waiters, 
+    return _last
+  </textarea>
+  </body>
